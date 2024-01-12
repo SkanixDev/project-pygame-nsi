@@ -4,8 +4,9 @@ import pygame
 pygame.init()
 
 # Création de la fenêtre
-window_width = 644
-window_height = 644
+tile = 46
+window_width = 16*tile
+window_height = 16*tile
 window = pygame.display.set_mode((window_width, window_height))
 
 # Titre de la fenêtre
