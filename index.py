@@ -1,156 +1,155 @@
-import pygame
+import pygame as pg
+import json
 
-# Initalition de pygame
-pygame.init()
-
-# Création de la fenêtre
 tile = 46
-window_width = 16*tile
-window_height = 16*tile
-window = pygame.display.set_mode((window_width, window_height))
+size_screen = 16
+screen_width = tile*size_screen
+screen_height = tile*size_screen
+screen = pg.display.set_mode((screen_width, screen_height))
 
-# Titre de la fenêtre
-pygame.display.set_caption("My Game")
+def main():
+    pg.init()
+    pg.display.set_caption('Jeu')
+    timer = pg.time.Clock()
 
-## Test Variables 
-background_test = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,0,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,0],
-]
-object_test = [
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-]
-enemy_test = [{ 
-    'type_enemy': 0, # 0 = red block
-    'start': [9,12],
-    'end': [0,12],
-    'x': 10,
-    'y': 12,
-}] 
+    selected_level = 0
+    walk_cooldown = 0
+    running = True
+
+    level = Level(0)
+    player = Player(tile,tile*2)
+    level.load_level()
 
 
-# Chargements des assets
-# - Backgrounds (list of all background with name 'fond1','fond2',...)
-bgs = [pygame.image.load('assets/backgrounds/fond_lune_1.png'),pygame.image.load('assets/backgrounds/fond_lune_2.png')]
-objects = [pygame.image.load('assets/objects/vide.png'),pygame.image.load('assets/objects/rocher.png')]
-enemies = [pygame.image.load('assets/enemies/redblock.png')]
+    while running:
+        delta =  timer.tick(30) / 1000.0
 
-# Dessin du fond
-def draw_background():
-    for row in range(14):
-        for column in range(14):
-            window.blit(bgs[background_test[row][column]],(column*46,row*46))
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
 
-# Dessin des objets
-def draw_objects():
-    for row in range(14):
-        for column in range(14):
-            window.blit(objects[object_test[row][column]],(column*46,row*46))
+        # Input
+        walk_cooldown -= delta
 
-# Dessin des ennemis
-def draw_enemies():
-    for enemy in enemy_test:
-        window.blit(enemies[enemy['type_enemy']],(enemy['x']*46,enemy['y']*46))
+        if walk_cooldown <= 0:
+            if pg.key.get_pressed()[pg.K_UP]:
+                player.move(level, 0, -1)
+                walk_cooldown = 0.2
+            elif pg.key.get_pressed()[pg.K_DOWN]:
+                player.move(level, 0, 1)
+                walk_cooldown = 0.2
+            elif pg.key.get_pressed()[pg.K_LEFT]:
+                player.move(level, -1, 0)
+                walk_cooldown = 0.2
+            elif pg.key.get_pressed()[pg.K_RIGHT]:
+                player.move(level, 1, 0)
+                walk_cooldown = 0.2
 
-# Classe personnage
-class Player:
-    def __init__(self, x, y) -> None:
-        self.x = x
-        self.y = y
-        self.image = pygame.image.load("assets/player/personnage.png")
+        # Update
+        level.render()
+        player.update()
+        pg.display.flip()
 
-    def deplacer(self, dx, dy):
-        self.x += dx*46
-        self.y += dy*46
 
-    def dessiner(self, surface):
-        surface.blit(self.image, (self.x, self.y))
+class Level():
+    def __init__(self, id: int) -> None:
+        self.id = id
+        self.init = False
+        self.name = ""
+        self.description = ""
+        self.textures_map = 0
+        self.background = []
+        self.background_textures = []
+        self.objects = []
+        self.objects_textures = []
+        
+    def load_level(self):
+        with open('data.json', 'r') as file_open:
+            file = json.load(file_open)
+            for level in file["levels"]:
+                if level["id"] == self.id:
+                    self.name = level["name"]
+                    self.decription = level["description"]
+                    self.background = level["background"]
+                    self.objects = level["objects"]
+                    self.textures_map = level["textures_map"]
+            for textures in file["textures_map"]:
+                if textures["id"] == self.textures_map:
+                    for background in textures["backgrounds"]:
+                        self.background_textures.append(pg.image.load(background))
+                    for objecT in textures["objects"]:
+                        self.objects_textures.append(pg.image.load(objecT))
+            self.init = True
+            print("[INFO] - Niveau chargé")    
+
+    def __render_background(self):
+        if self.init == False:
+            raise Exception("[ERREUR] - Niveau pas chargé")
+        for y in range(size_screen):
+            for x in range(size_screen):
+                bg = self.background
+                textures = self.background_textures
+                screen.blit(textures[bg[y][x]], (x*tile, y*tile))
+    
+    def __render_objects(self):
+        if self.init == False:
+            raise Exception("[ERREUR] - Niveau pas chargé")
+        for y in range(size_screen):
+            for x in range(size_screen):
+                obj = self.objects
+                textures = self.objects_textures
+                screen.blit(textures[obj[y][x]], (x*tile, y*tile))   
+                     
+    def render(self):
+        # Render du background
+        self.__render_background()
+        self.__render_objects()
+    
+    def get_objects_position(self, x, y):
+        return self.objects[y][x]
+    
+class Entity(pg.sprite.Sprite):
+    def __init__(self):
+        pg.sprite.Sprite.__init__(self)
+
+class Player(Entity):
+    def __init__(self, x, y):
+        Entity.__init__(self)
+        self.image = pg.Surface((tile, tile))
+        self.image.fill((255, 255, 255))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+    
+    def update(self):
+        self.draw()
+        pass
+
+    def draw(self):
+        img = pg.image.load("assets/player/personnage.png")
+        screen.blit(img, (self.rect.x, self.rect.y))
+        pass
+    
+    def move(self, level, x, y):
+        # if player out screen return 
+        if self.rect.x//tile+x < 0 or self.rect.x//tile+x > size_screen or self.rect.y//tile+y < 0 or self.rect.y//tile+y > size_screen:
+            return print("Impossible1")
+        if level.get_objects_position((self.rect.x//tile)+x, (self.rect.y//tile)+y) == 0:
+            for i in range(0, int(tile/2)):
+                self.rect.x += x*2
+                self.rect.y += y*2
+                level.render()
+                self.draw()
+                pg.display.flip()
+        else:
+            print("Impossible")
+        print("x:",x," y:", y," object:", level.get_objects_position((self.rect.x//tile)+x, (self.rect.y//tile)+y), " pos:",(self.rect.x//tile), (self.rect.y//tile))
+        pass
 
     def get_position(self):
-        return (int(self.x/46),int(self.y/46))
+        return (self.rect.x, self.rect.y)
 
 
-# Mise à jour des ennemis
-def update_enemy(enemy):
-    if enemy['x'] == enemy['end'][0] and enemy['y'] == enemy['end'][1]:
-        enemy['end'],enemy['start'] = enemy['start'],enemy['end']
-    else:
-        if enemy['x'] > enemy['end'][0]:
-            enemy['x'] -= 1
-        if enemy['x'] < enemy['end'][0]:
-            enemy['x'] += 1
-        if enemy['y'] > enemy['end'][1]:
-            enemy['y'] -= 1
-        if enemy['y'] < enemy['end'][1]:
-            enemy['y'] += 1
-    
+if __name__ == "__main__":
+    main()
 
-# Définition des instances
-player = Player(0,0)
-clock = pygame.time.Clock()
-draw_background()
-draw_objects()
-draw_enemies()
-
-# Game loop
-running = True
-while running:
-    clock.tick(4)
-
-    # Handle events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    
-    # déplacement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_UP]:
-        if object_test[player.get_position()[1]-1][player.get_position()[0]] == 0:
-            player.deplacer(0,-1)
-    if keys[pygame.K_DOWN]:
-        if object_test[player.get_position()[1]+1][player.get_position()[0]] == 0:
-            player.deplacer(0,1)
-    if keys[pygame.K_LEFT]:
-        if object_test[player.get_position()[1]][player.get_position()[0]-1] == 0:
-            player.deplacer(-1,0)
-    if keys[pygame.K_RIGHT]:
-        if object_test[player.get_position()[1]][player.get_position()[0]+1] == 0:
-            player.deplacer(1,0)
-
-    # Update enemies
-    update_enemy(enemy_test[0])
-
-    # Draw
-    draw_background()
-    draw_objects()
-    draw_enemies()
-    player.dessiner(window)
-    pygame.display.flip()
-
-# Quit Pygame
-pygame.quit()
