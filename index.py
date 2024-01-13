@@ -133,7 +133,7 @@ class Player(Entity):
     def move(self, level, x, y):
         # if player out screen return 
         if self.rect.x//tile+x < 0 or self.rect.x//tile+x > size_screen or self.rect.y//tile+y < 0 or self.rect.y//tile+y > size_screen:
-            return print("Impossible1")
+            return
         if level.get_objects_position((self.rect.x//tile)+x, (self.rect.y//tile)+y) == 0:
             for i in range(0, int(tile/2)):
                 self.rect.x += x*2
@@ -141,9 +141,6 @@ class Player(Entity):
                 level.render()
                 self.draw()
                 pg.display.flip()
-        else:
-            print("Impossible")
-        print("x:",x," y:", y," object:", level.get_objects_position((self.rect.x//tile)+x, (self.rect.y//tile)+y), " pos:",(self.rect.x//tile), (self.rect.y//tile))
         pass
 
     def get_position(self):
