@@ -18,6 +18,7 @@ def main():
 
     level = Level(0)
     player = Player(tile,tile*2)
+    enemies = [Enemy()]
     level.load_level()
 
 
@@ -33,21 +34,22 @@ def main():
 
         if walk_cooldown <= 0:
             if pg.key.get_pressed()[pg.K_UP]:
-                player.move(level, 0, -1)
+                player.move(level,enemies, 0, -1)
                 walk_cooldown = 0.2
             elif pg.key.get_pressed()[pg.K_DOWN]:
-                player.move(level, 0, 1)
+                player.move(level,enemies, 0, 1)
                 walk_cooldown = 0.2
             elif pg.key.get_pressed()[pg.K_LEFT]:
-                player.move(level, -1, 0)
+                player.move(level,enemies, -1, 0)
                 walk_cooldown = 0.2
             elif pg.key.get_pressed()[pg.K_RIGHT]:
-                player.move(level, 1, 0)
+                player.move(level,enemies, 1, 0)
                 walk_cooldown = 0.2
 
         # Update
         level.render()
         player.update()
+        enemies[0].update()
         pg.display.flip()
 
 
@@ -130,7 +132,7 @@ class Player(Entity):
         screen.blit(img, (self.rect.x, self.rect.y))
         pass
     
-    def move(self, level, x, y):
+    def move(self, level, enemies, x, y):
         # if player out screen return 
         if self.rect.x//tile+x < 0 or self.rect.x//tile+x > size_screen or self.rect.y//tile+y < 0 or self.rect.y//tile+y > size_screen:
             return
@@ -139,6 +141,7 @@ class Player(Entity):
                 self.rect.x += x*2
                 self.rect.y += y*2
                 level.render()
+                enemies[0].update()
                 self.draw()
                 pg.display.flip()
         pass
@@ -147,6 +150,25 @@ class Player(Entity):
         return (self.rect.x, self.rect.y)
 
 
+class Enemy(Entity):
+    def __init__(self):
+        Entity.__init__(self)
+        self.image = pg.Surface((tile, tile))
+        self.image.fill((255, 255, 255))
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+        pass
+
+    def update(self):
+        self.draw()
+        pass
+
+    def draw(self):
+        img = pg.image.load("assets/enemies/black_fly.png")
+        screen.blit(img, (self.rect.x, self.rect.y))
+        pass
+
+
 if __name__ == "__main__":
     main()
-
