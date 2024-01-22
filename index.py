@@ -7,6 +7,8 @@ screen_width = tile*size_screen
 screen_height = tile*size_screen
 screen = pg.display.set_mode((screen_width, screen_height))
 
+design_lvl = 1 # 0: low, 1: high
+
 def main():
     pg.init()
     pg.display.set_caption('Jeu')
@@ -145,7 +147,7 @@ class Player(Entity):
         self.frame_skin = 0
         self.skin = ["assets/player/personnage.png", "assets/player/perso_d1.png",
                         "assets/player/perso_d2.png", "assets/player/perso_d3.png",
-                     ]
+                    ]
     
     def update(self):
         self.draw()
@@ -168,14 +170,26 @@ class Player(Entity):
         if self.rect.x//tile+x < 0 or self.rect.x//tile+x > size_screen or self.rect.y//tile+y < 0 or self.rect.y//tile+y > size_screen:
             return
         if level.get_objects_position((self.rect.x//tile)+x, (self.rect.y//tile)+y) == 0:
-            for i in range(0, 1):
-                self.state = "walk"
-                self.rect.x += x*tile
-                self.rect.y += y*tile
-                level.render()
-                enemies[0].update(self.get_position())
-                self.draw()
-                pg.display.flip()
+            if design_lvl == 0:
+                for i in range(0, 1):
+                    self.state = "walk"
+                    self.rect.x += x*tile
+                    self.rect.y += y*tile
+                    level.render()
+                    for enemie in enemies:
+                        enemie.update(self.get_position())
+                    self.draw()
+                    pg.display.flip()
+            elif design_lvl == 1:
+                for i in range(0, int(tile/2)):
+                    self.state = "walk"
+                    self.rect.x += x*2
+                    self.rect.y += y*2
+                    level.render()
+                    for enemie in enemies:
+                        enemie.update(self.get_position())
+                    self.draw()
+                    pg.display.flip()
         self.state = "idle"
         pass
 
@@ -199,7 +213,7 @@ class Enemy(Entity):
         self.to_y = 0
         self.type = ""
         self.cool_down = 0
-        self.cool_down_time = 0.4
+        self.cool_down_time = 0.8
     
     def load(self, type: str, x: int, y: int, speed: int,from_x: int, from_y: int,to_x: int, to_y: int):
         self.type = type
@@ -254,6 +268,8 @@ class Enemy(Entity):
 
     def get_position(self):
         return (self.rect.x, self.rect.y)
+
+
 
 
 if __name__ == "__main__":
