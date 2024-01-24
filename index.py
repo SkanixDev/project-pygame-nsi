@@ -9,57 +9,78 @@ screen = pg.display.set_mode((screen_width, screen_height))
 
 design_lvl = 1 # 0: low, 1: high
 
-def main():
-    pg.init()
-    pg.display.set_caption('Jeu')
-    timer = pg.time.Clock()
+pg.init()
+pg.display.set_caption('Jeu')
+timer = pg.time.Clock()
+selected_level = 0
+walk_cooldown = 0
+game_status = "loadlevel"
 
-    selected_level = 0
-    walk_cooldown = 0
+def main():
+    global game_status
     running = True
 
-    level = Level(0)
-    player = Player(tile,tile*2)
+    level = None
+    player = None
     enemies = []
-    for i in level.get_enemies():
-        enemy = Enemy()
-        enemy.load(i["type"], i["x"]*tile, i["y"]*tile, i["speed"], i["from_x"]*tile, i["from_y"]*tile, i["to_x"]*tile, i["to_y"]*tile)
-        print(enemy.get_position())
-        enemies.append(enemy)
-    level.load_level()
+    
 
-    while running:
-        delta =  timer.tick(30) / 1000.0
-
+    while running: 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
+        if game_status == "loadlevel":
+            level = Level(selected_level)
+            player = Player(tile,tile*2)
+            for i in level.get_enemies():
+                enemy = Enemy()
+                enemy.load(i["type"], i["x"]*tile, i["y"]*tile, i["speed"], i["from_x"]*tile, i["from_y"]*tile, i["to_x"]*tile, i["to_y"]*tile)
+                print(enemy.get_position())
+                enemies.append(enemy)
+            level.load_level()
+            game_status = "playing"
+        elif game_status == "playing":
+            game(level, player, enemies)
+        elif game_status == "gameover":
+            gameover()
+            pass
 
-        # Input
-        walk_cooldown -= delta
-        time_cooldown = 0.1
+def game(level, player, enemies):
+    global walk_cooldown
+    delta =  timer.tick(30) / 1000.0
 
-        if walk_cooldown <= 0:
-            if pg.key.get_pressed()[pg.K_UP]:
-                player.move(level,enemies, 0, -1)
-                walk_cooldown = time_cooldown
-            if pg.key.get_pressed()[pg.K_DOWN]:
-                player.move(level,enemies, 0, 1)
-                walk_cooldown = time_cooldown
-            if pg.key.get_pressed()[pg.K_LEFT]:
-                player.move(level,enemies, -1, 0)
-                walk_cooldown = time_cooldown
-            if pg.key.get_pressed()[pg.K_RIGHT]:
-                player.move(level,enemies, 1, 0)
-                walk_cooldown = time_cooldown
+    # Input
+    walk_cooldown -= delta
+    time_cooldown = 0.1
+
+    if walk_cooldown <= 0:
+        if pg.key.get_pressed()[pg.K_UP]:
+            player.move(level,enemies, 0, -1)
+            walk_cooldown = time_cooldown
+        if pg.key.get_pressed()[pg.K_DOWN]:
+            player.move(level,enemies, 0, 1)
+            walk_cooldown = time_cooldown
+        if pg.key.get_pressed()[pg.K_LEFT]:
+            player.move(level,enemies, -1, 0)
+            walk_cooldown = time_cooldown
+        if pg.key.get_pressed()[pg.K_RIGHT]:
+            player.move(level,enemies, 1, 0)
+            walk_cooldown = time_cooldown
 
         
-        # Update
-        level.render()
-        for enemy in enemies:
-            enemy.update(player.get_position())
-        player.update()
-        pg.display.flip()
+     # Update
+    level.render()
+    for enemy in enemies:
+        enemy.update(player.get_position())
+    player.update()
+    pg.display.flip()
+
+def gameover():
+    # create text "Game over"
+    # create button "Rejouer"
+    pg.quit()
+    pass
+
 
 
 class Level():
@@ -257,7 +278,6 @@ class Enemy(Entity):
             # check if player is on enemy position
             if self.rect.x == player_position[0] and self.rect.y == player_position[1]:
                 print("Game Over")
-                running = False
             # Move to to_x and to_y but step by step
             if self.rect.x != self.to_x or self.rect.y != self.to_y:
                 if self.cool_down <= 0:
