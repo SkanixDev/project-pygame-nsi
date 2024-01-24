@@ -37,19 +37,19 @@ def main():
 
         # Input
         walk_cooldown -= delta
-        time_cooldown = 0.4
+        time_cooldown = 0.1
 
         if walk_cooldown <= 0:
             if pg.key.get_pressed()[pg.K_UP]:
                 player.move(level,enemies, 0, -1)
                 walk_cooldown = time_cooldown
-            elif pg.key.get_pressed()[pg.K_DOWN]:
+            if pg.key.get_pressed()[pg.K_DOWN]:
                 player.move(level,enemies, 0, 1)
                 walk_cooldown = time_cooldown
-            elif pg.key.get_pressed()[pg.K_LEFT]:
+            if pg.key.get_pressed()[pg.K_LEFT]:
                 player.move(level,enemies, -1, 0)
                 walk_cooldown = time_cooldown
-            elif pg.key.get_pressed()[pg.K_RIGHT]:
+            if pg.key.get_pressed()[pg.K_RIGHT]:
                 player.move(level,enemies, 1, 0)
                 walk_cooldown = time_cooldown
 
@@ -144,10 +144,12 @@ class Player(Entity):
         self.rect.x = x
         self.rect.y = y
         self.state = "idle"
+        self.direction = "south" # north, south, east, west
         self.frame_skin = 0
         self.skin = ["assets/player/personnage.png", "assets/player/perso_d1.png",
                         "assets/player/perso_d2.png", "assets/player/perso_d3.png",
                     ]
+        self.cooldown_skin = 0
     
     def update(self):
         self.draw()
@@ -155,14 +157,27 @@ class Player(Entity):
 
     def draw(self):
         img = ""
+        if self.cooldown_skin <= 0:
+            if self.frame_skin < len(self.skin)-1:
+                self.frame_skin += 1
+            else:
+                self.frame_skin = 0
+            self.cooldown_skin = 0.3
+        else:
+            self.cooldown_skin -= 0.1
         if self.state == "idle":
-            img = pg.image.load(self.skin[0])
-        elif self.state == "walk":
-            img = pg.image.load(self.skin[self.frame_skin])
-            self.frame_skin += 1
-            if self.frame_skin >= len(self.skin):
-                self.frame_skin = 1
-        screen.blit(img, (self.rect.x, self.rect.y))
+            self.frame_skin = 0
+        rotated_img = ""
+        if self.direction == "south":
+            rotated_img = pg.transform.rotate(pg.image.load(self.skin[self.frame_skin]), 0)
+        elif self.direction == "north":
+            rotated_img = pg.transform.rotate(pg.image.load(self.skin[self.frame_skin]), 180)
+        elif self.direction == "east":
+            rotated_img = pg.transform.rotate(pg.image.load(self.skin[self.frame_skin]), 90)
+        elif self.direction == "west":
+            rotated_img = pg.transform.rotate(pg.image.load(self.skin[self.frame_skin]), 270)
+        
+        screen.blit(rotated_img, (self.rect.x, self.rect.y))
         pass
     
     def move(self, level, enemies, x, y):
@@ -170,6 +185,14 @@ class Player(Entity):
         if self.rect.x//tile+x < 0 or self.rect.x//tile+x > size_screen or self.rect.y//tile+y < 0 or self.rect.y//tile+y > size_screen:
             return
         if level.get_objects_position((self.rect.x//tile)+x, (self.rect.y//tile)+y) == 0:
+            if x == 1:
+                self.direction = "east"
+            elif x == -1:
+                self.direction = "west"
+            elif y == 1:
+                self.direction = "south"
+            elif y == -1:
+                self.direction = "north"
             if design_lvl == 0:
                 for i in range(0, 1):
                     self.state = "walk"
@@ -234,6 +257,7 @@ class Enemy(Entity):
             # check if player is on enemy position
             if self.rect.x == player_position[0] and self.rect.y == player_position[1]:
                 print("Game Over")
+                running = False
             # Move to to_x and to_y but step by step
             if self.rect.x != self.to_x or self.rect.y != self.to_y:
                 if self.cool_down <= 0:
