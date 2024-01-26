@@ -17,8 +17,12 @@ walk_cooldown = 0
 game_status = "loadlevel"
 running = True
 
+#  gameover state
+gameover_status = False
+
 def main():
     global running
+    global game_status
     global game_status
 
     level = None
@@ -79,9 +83,26 @@ def game(level, player, enemies):
 
 def gameover():
     global running
+    global gameover_status
     # create text "Game over"
     # create button "Rejouer"
-    print("T'es nul arrete de jouer")
+
+    if not gameover_status:
+        print("T'es nul arrete de jouer")
+        fond = pg.Surface((screen_width,screen_height))
+        fond.fill((0,0,0))
+        fond.set_alpha(128)
+
+        image_mort = pg.image.load('assets/images/WASTED.png')
+        position_x = ((tile*size_screen)/2)-(image_mort.get_width()/2)
+        position_y = ((tile*size_screen)/2)-(image_mort.get_height()/2)
+        screen.blit (fond,(0,0))    
+        screen.blit(image_mort, (position_x, position_y))
+        pg.display.flip()
+        gameover_status = True
+    else:
+        button = Button("NTM", 0,0, (120,120,120))
+        button.draw()
     pass
 
 
@@ -319,6 +340,26 @@ class Enemy(Entity):
         return (self.rect.x, self.rect.y)
 
 
+class Button ():
+    def __init__(self, text, x, y, color = (120,120,0)) -> None:
+        self.image = pg.Surface((150,80))
+        self.rect = self.image.get_rect()
+        self.text = text
+        self.x = x
+        self.y = y
+        self.color = self.image.fill((color))
+        pass 
+    def draw(self):
+        global game_status
+        pos = pg.mouse.get_pos() # (120,2)
+
+        if self.rect.collidepoint(pos):
+            if pg.mouse.get_pressed()[0] == 1:
+                print("CLIQUER FDP")
+                game_status = "loadlevel"
+    
+        screen.blit(self.image, (0,0))
+        pg.display.flip()
 
 
 if __name__ == "__main__":
