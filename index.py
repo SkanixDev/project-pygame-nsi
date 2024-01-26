@@ -15,10 +15,11 @@ timer = pg.time.Clock()
 selected_level = 0
 walk_cooldown = 0
 game_status = "loadlevel"
+running = True
 
 def main():
+    global running
     global game_status
-    running = True
 
     level = None
     player = None
@@ -44,6 +45,7 @@ def main():
         elif game_status == "gameover":
             gameover()
             pass
+    pg.quit()
 
 def game(level, player, enemies):
     global walk_cooldown
@@ -76,9 +78,10 @@ def game(level, player, enemies):
     pg.display.flip()
 
 def gameover():
+    global running
     # create text "Game over"
     # create button "Rejouer"
-    pg.quit()
+    print("T'es nul arrete de jouer")
     pass
 
 
@@ -277,6 +280,8 @@ class Enemy(Entity):
             self.draw()
             # check if player is on enemy position
             if self.rect.x == player_position[0] and self.rect.y == player_position[1]:
+                global game_status
+                game_status= "gameover"
                 print("Game Over")
             # Move to to_x and to_y but step by step
             if self.rect.x != self.to_x or self.rect.y != self.to_y:
