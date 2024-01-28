@@ -7,18 +7,19 @@ screen_width = tile*size_screen
 screen_height = tile*size_screen
 screen = pg.display.set_mode((screen_width, screen_height))
 
-design_lvl = 0 # 0: low, 1: high
+design_lvl = 1 # 0: low, 1: high
 
 pg.init()
 pg.display.set_caption('Jeu')
 timer = pg.time.Clock()
-selected_level = 0
+selected_level = 1
 walk_cooldown = 0
 game_status = "loadlevel"
 running = True
 
 #  gameover state
 gameover_status = False
+pause_status = False
 
 def main():
     global running
@@ -27,6 +28,7 @@ def main():
 
     level = None
     player = None
+    gui = None
     enemies = []
     items = []
 
@@ -35,7 +37,7 @@ def main():
             if event.type == pg.QUIT:
                 running = False
         if game_status == "loadlevel": # Chargement du niveau
-            if level is not None:
+            if level is not None: # Reset game
                 del level
                 del player
                 del enemies
@@ -43,8 +45,13 @@ def main():
                 player = None
                 enemies = []
                 items = []
+                gui = None
             level = Level(selected_level)
-            player = Player(tile,tile*2)
+            level.load_level()
+            player_init_position = level.get_player_init_position()
+            print("Player", player_init_position)
+            player = Player(player_init_position[0], player_init_position[1])
+            gui = GUI()
             for i in level.get_enemies():
                 enemy = Enemy()
                 enemy.load(i["type"], i["x"]*tile, i["y"]*tile, i["speed"], i["from_x"]*tile, i["from_y"]*tile, i["to_x"]*tile, i["to_y"]*tile)
@@ -56,18 +63,23 @@ def main():
                 items.append(item)
             print("Ennemis", enemies)
             print("Items", items)
-            level.load_level()
             game_status = "playing"
             
         elif game_status == "playing":
-            game(level, player, enemies, items)
+            game(level, gui, player, enemies, items)
 
         elif game_status == "gameover":
             gameover()
+        
+        elif game_status == "pause":
+            pause()
     pg.quit()
 
-def game(level, player, enemies, items):
+def game(level, gui, player, enemies, items):
     global walk_cooldown
+    global game_status
+    global selected_level
+
     delta =  timer.tick(30) / 1000.0
 
     # Input
@@ -100,6 +112,22 @@ def game(level, player, enemies, items):
         if player.get_position() == item.get_position():
             item.set_state(False)
             items.remove(item)
+            player.add_coin()
+            gui.set_coins(player.get_coins())
+            print("Coin", player.get_coins(), gui.get_coins())
+            if len(items) == 0:
+                game_status = "loadlevel"
+                print("Level terminé")
+                selected_level += 1
+                print("Level", selected_level)
+                if selected_level >= 2:
+                    selected_level = 0
+                print("Level", selected_level)
+                break
+
+    # GUI
+    gui.draw()
+
     pg.display.flip()
 
 
@@ -143,6 +171,42 @@ def gameover():
             print("Menu")
     pass
 
+def pause():
+    global running
+    global game_status
+    global button_rejouer
+    global button_menu
+    global pause_status
+
+    if not pause_status:
+        fond = pg.Surface((screen_width,screen_height))
+        fond.fill((0,0,0))
+        fond.set_alpha(128)
+
+        image_pause = pg.image.load('assets/images/PAUSE.png')
+        position_x = ((tile*size_screen)/2)-(image_pause.get_width()/2)
+        position_y = ((tile*size_screen)/2)-(image_pause.get_height()/2)
+        screen.blit (fond,(0,0))    
+        screen.blit(image_pause, (position_x, position_y))
+
+        button_rejouer = Button("Reprendre", (position_x-50, position_y+100),(120,70), (255,66,66))
+        button_rejouer.draw()
+
+        button_menu = Button("Menu", (50+position_x+image_pause.get_width()/2, position_y+100),(120,70), (64,213,66))
+        button_menu.draw()
+
+        pg.display.flip()
+        pause_status = True
+    else:
+        if button_rejouer.is_clicked():
+            game_status = "playing"
+            pause_status = False
+            print("Rejouer")
+        if button_menu.is_clicked():
+            game_status = "menu"
+            pause_status = False
+            print("Menu")
+    pass
 
 
 class Level():
@@ -156,6 +220,7 @@ class Level():
         self.background_textures = []
         self.objects = []
         self.objects_textures = []
+        self.player_init_position = (0, 0)
         
     def load_level(self):
         with open('data.json', 'r') as file_open:
@@ -167,9 +232,11 @@ class Level():
                     self.background = level["background"]
                     self.objects = level["objects"]
                     self.textures_map = level["textures_map"]
+                    self.player_init_position = (level["player_coordinates"][0]*tile, level["player_coordinates"][1]*tile)
             for textures in file["textures_map"]:
                 if textures["id"] == self.textures_map:
                     for background in textures["backgrounds"]:
+                        print("Loading textures", background)
                         self.background_textures.append(pg.image.load(background))
                     for objecT in textures["objects"]:
                         self.objects_textures.append(pg.image.load(objecT))
@@ -218,7 +285,9 @@ class Level():
             for level in file["levels"]:
                 if level["id"] == self.id:
                     return level["items"]
-
+    
+    def get_player_init_position(self):
+        return self.player_init_position
     
 class Entity(pg.sprite.Sprite):
     def __init__(self):
@@ -239,6 +308,7 @@ class Player(Entity):
                         "assets/player/perso_d2.png", "assets/player/perso_d3.png",
                     ]
         self.cooldown_skin = 0
+        self.coins = 0
     
     def update(self):
         self.draw()
@@ -298,18 +368,21 @@ class Player(Entity):
                     self.state = "walk"
                     self.rect.x += x*2
                     self.rect.y += y*2
-                    level.render()
-                    for enemie in enemies:
-                        enemie.update(self.get_position())
-                    for item in items:
-                        item.draw()
                     self.draw()
+                    pg.time.delay(2)
                     pg.display.flip()
         self.state = "idle"
         pass
 
     def get_position(self):
         return (self.rect.x, self.rect.y)
+    
+    def add_coin(self):
+        self.coins += 1
+        pass
+    
+    def get_coins(self):
+        return self.coins
 
 
 class Enemy(Entity):
@@ -447,6 +520,37 @@ class Item():
     def set_state(self, state):
         self.state = state
         pass
+    
+class GUI():
+    def __init__(self):
+        self.coins = 0
+        self.font = pg.font.Font("assets/fonts/pixel.TTF", 30)
+        self.coinsText = self.font.render(str(self.coins), 1, (255,255,255))
+        self.pauseButton = Button("Pause", (screen_width-100, 10), (90, 30), (232, 105, 32))
+        pass
+
+    def draw(self):
+        self.coinsText = self.font.render(str(self.coins), 1, (255,255,255))
+        # get size of text
+        text_rect = self.coinsText.get_rect()
+        # blit text in center of text
+        self.pauseButton.draw()
+        screen.blit(self.coinsText, ((screen_width/2)-(text_rect.width/2), 10))
+
+        if self.pauseButton.is_clicked():
+            global game_status
+            game_status = "pause"
+            print("Pause")
+        pass
+    
+    def set_coins(self, coins):
+        self.coins = coins
+        pass
+    
+    def get_coins(self):
+        return self.coins
+
+    
     
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@
             "name": "Premier niveau",
             "description": "Niveau test",
             "textures_map": 0,
+            "player_coordinates": [7,1],
             "background": [
                 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -109,6 +110,139 @@
                     "x": 2,
                     "y": 3,
                     "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 4,
+                    "y": 4,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 3,
+                    "y": 2,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 12,
+                    "y": 2,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 13,
+                    "y": 3,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 11,
+                    "y": 4,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 4,
+                    "y": 11,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 3,
+                    "y": 13,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 2,
+                    "y": 12,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 13,
+                    "y": 12,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 12,
+                    "y": 13,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 11,
+                    "y": 11,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 7,
+                    "y": 7,
+                    "image": "assets/objects/pierre_1.png"
+                },
+                {
+                    "type": "coin",
+                    "x": 8,
+                    "y": 8,
+                    "image": "assets/objects/pierre_1.png"
+                }
+            ]
+        },
+        {
+            "id": 1,
+            "name": "Deuxième niveau",
+            "description": "Niveau test",
+            "textures_map": 0,
+            "player_coordinates": [7,1],
+            "background": [
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            ],
+            "objects": [
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,1,0,0,1,1,1,1,1,1,0,0,1,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1],
+                [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+                [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                [1,0,1,0,0,1,0,0,0,0,1,0,0,1,0,1],
+                [1,0,1,0,0,1,0,0,0,0,1,0,0,1,0,1],
+                [1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+                [1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,0,1,0,0,1,1,1,1,1,1,0,0,1,0,1],
+                [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            ],
+            "enemy": [
+                
+            ],
+            "items": [
+                
+                {
+                    "type": "coin",
+                    "x": 11,
+                    "y": 11,
+                    "image": "assets/objects/pierre_1.png"
                 }
             ]
         }
@@ -117,7 +251,8 @@
         {
             "id": 0,
             "backgrounds": [
-                "assets/backgrounds/fond_2.png"
+                "assets/backgrounds/fond_2.png",
+                "assets/backgrounds/fond_1.png"
             ],
             "objects": [
                 "assets/objects/vide.png",
