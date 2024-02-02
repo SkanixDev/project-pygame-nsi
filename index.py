@@ -12,20 +12,199 @@ design_lvl = 1 # 0: low, 1: high
 pg.init()
 pg.display.set_caption('Jeu')
 timer = pg.time.Clock()
-selected_level = 1
+selected_level = 0
 walk_cooldown = 0
-game_status = "shop"
+game_status = "menu"
 running = True
 
 #  gameover state
 gameover_status = False
 pause_status = False
 shop_status = False
+level_screen_status = False
+
+## Nicholas
+def startScreen():
+
+        gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
+
+        messageToScreen("Gem Raider", black, -100, size = "large")
+        button("Niveaux",100, 325,150,50, light_green, green, action = "lvl")
+        button("Regles",300, 325,150,50, light_yellow, yellow, action = "directions")
+        button("Quitter",500, 325,150,50, light_red, red, action = "quit")
+        button("Parametres", 100, 400,150,50, gray, light_blue, action = "sett")
+        button("Shop", 300, 400,150,50, gray, light_blue, action = "shop")
+        button("Modificateur", 500, 400,150,50, gray, light_blue, action = "mod")
+       
+
+
+        pg.display.update()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                game = False
+                pg.quit()
+                quit()
+display_width = 46*16
+display_height = 46*16
+
+white = (253,255,252)
+brown = (248,126,98)
+black = (9,8,9)
+gray = (114,119,108)
+red = (175,0,0)
+green = (34,177,76)
+yellow = (117,130,250)
+blue = (30,144,255)
+light_green = (34,230,76)
+light_red = (230,0,0)
+light_yellow = (117,184,200)
+light_blue = (105,103,115)
+
+smallFont = pg.font.SysFont("Fantacy", 30)
+medFont = pg.font.SysFont("Fantacy", 40)
+largeFont = pg.font.SysFont("Fantacy", 55)
+
+
+
+gameDisplay = pg.display.set_mode((display_width, display_height))
+
+pg.display.set_caption("Gem Raider")
+
+
+def text_objects(text, color, size):
+    if size == "small":
+        textSurf = smallFont.render(text, True, color)
+    elif size == "medium":
+        textSurf = medFont.render(text, True, color)
+    elif size == "large":
+        textSurf = largeFont.render(text, True, color)
+
+    return textSurf, textSurf.get_rect()
+
+
+def messageToScreen(msg, color, y_displace = 0, size = "small"):
+    textSurface, textRect = text_objects(msg, color, size)
+    textRect.center = (display_width/2), (display_height/2) + y_displace
+    gameDisplay.blit(textSurface, textRect)
+
+def text_to_button(msg, color, buttonX, buttonY, buttonWidth, buttonHeight, size = "small"):
+    textSurface, textRect = text_objects(msg, color, size)
+    textRect.center = ((buttonX + (buttonWidth/2), buttonY + (buttonHeight/2)))
+    gameDisplay.blit(textSurface, textRect)
+
+
+def button(text, x, y, width, height, inactiveColor , activeColor,textColor = black, action = None, lvl = None):
+    global game_status
+    global selected_level
+    cur = pg.mouse.get_pos()
+    click = pg.mouse.get_pressed()
+
+    if x+ width > cur[0] > x and y + height > cur[1] > y:
+        pg.draw.rect(gameDisplay, activeColor, (x,y,width,height))
+        if click[0] == 1 and action !=  None:
+            if action == "quit":
+                pg.quit()
+                quit()
+            if action == "directions":
+                game_status = "regles"
+            if action == "lvl":
+                game_status = "lvl"
+            if action == "sett":
+                game_status = "sett"
+            if action == "shop":
+                game_status = "shop"
+            if action == "mod":
+                game_status = "mod"
+            if action == "main":
+                game_status = "menu"
+            if action == "lvlset" and lvl is not None:
+                selected_level = lvl
+                print("Selected level", selected_level)
+                game_status = "loadlevel"    
+
+    else:
+        pg.draw.rect(gameDisplay, inactiveColor, (x,y,width,height))
+
+    text_to_button(text,textColor,x,y,width,height)
+
+
+def settings():
+        gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
+        messageToScreen("Paramètres", black, -200, size = "large")
+        button("Retour",70, 500,150,50, light_yellow, yellow, action = "main")
+        button("Qualité",290, 500,150,50, gray, light_blue, action = "none")
+        button("Quitter",500,500,150,50,light_red,red,action = "quit")
+        pg.display.update()
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                settings = False
+                pg.quit()
+                quit()
+
+def levelScreen():
+    global level_screen_status
+    global selected_level
+
+    if level_screen_status == False:
+        data = json.load(open('data.json'))
+        font = pg.font.Font(None, 36)
+    
+
+        buttons = []
+
+        gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
+
+        for i, level in enumerate(data['levels']):
+            x = 0
+            if i // 3:
+                x = 400
+            elif i // 2:
+                x = 450
+            elif i //1:
+                x = 500
+            y = 250
+
+            level_number = str(level['id'])
+            button(level_number, x, y, 150,50, light_yellow, yellow, action="lvlset", lvl=level_number)
+            
+            messageToScreen("Niveaux", black, -200, size="large")
+            button("Retour", 70, 500, 150, 50, light_yellow, yellow, action="main")
+            button("Quitter", 500, 500, 150, 50, light_red, red, action="quit")
+
+            pg.display.flip()
+            level_screen_status = True
+    else:
+            button("Retour", 70, 500, 150, 50, light_yellow, yellow, action="main")
+            button("Quitter", 500, 500, 150, 50, light_red, red, action="quit")
+
+
+
+def directions():
+
+        gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
+        messageToScreen("Regles", black, -200, size = "large")
+        messageToScreen("Utilisez les fleches pour vous deplacer",black,-100)
+        messageToScreen("Recuperez toutes les gems",black,-60)
+        messageToScreen("Evitez les enemies",black,-20)
+        messageToScreen("Amusez-vous !",blue,80, size = "medium")
+        button("Retour",70, 500,150,50, light_yellow, yellow, action = "main")
+        button("Quitter",500,500,150,50,light_red,red,action = "quit")
+        pg.display.update()
+
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                directions = False
+                pg.quit()
+                quit()
+
+## Nicholas
 
 def main():
     global running
     global game_status
     global game_status
+    global level_screen_status
 
     level = None
     player = None
@@ -47,7 +226,7 @@ def main():
                 enemies = []
                 items = []
                 gui = None
-            level = Level(selected_level)
+            level = Level(int(selected_level))
             level.load_level()
             player_init_position = level.get_player_init_position()
             print("Player", player_init_position)
@@ -74,8 +253,21 @@ def main():
         
         elif game_status == "pause":
             pause()
+        elif game_status == "menu":
+            startScreen()
+        elif game_status == "regles":
+            directions()
+        elif game_status == "lvl":
+            level_screen_status = False
+            levelScreen()
+        elif game_status == "sett":
+            settings()
         elif game_status == "shop":
             shop()
+            pass
+        elif game_status == "mod":
+             pass
+
     pg.quit()
 
 def game(level, gui, player, enemies, items):
@@ -173,6 +365,7 @@ def gameover():
             game_status = "menu"
             print("Menu")
     pass
+
 
 def pause():
     global running
@@ -487,7 +680,7 @@ class Button():
             if self.rect.collidepoint(pg.mouse.get_pos()):
                 return True
         return False
-
+    
     def get_text(self):
         return self.textStr
 
@@ -557,7 +750,6 @@ class GUI():
     def get_coins(self):
         return self.coins
 
-
 buttons_buy_shop = []
 def shop():
     global shop_status
@@ -568,13 +760,11 @@ def shop():
 
     if shop_status == False:
         buttons_buy_shop = []
-        fond = pg.Surface((screen_width,screen_height))
-        fond.fill((200,200,200))
+        screen.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
 
         image_shop = pg.image.load('assets/images/SHOP.png')
         position_x = ((tile*size_screen)/2)-(image_shop.get_width()/2)
         position_y = (50)
-        screen.blit (fond,(0,0))
         screen.blit(image_shop, (position_x, position_y))
 
         #Text
@@ -655,6 +845,12 @@ def change_skin_ative(id):
         data["active_skin"] = id
         with open("player.json", "w") as json_file:
             json.dump(data, json_file, indent=4) 
+    
+    
 
 if __name__ == "__main__":
     main()
+
+
+
+
