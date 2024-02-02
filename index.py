@@ -14,12 +14,13 @@ pg.display.set_caption('Jeu')
 timer = pg.time.Clock()
 selected_level = 1
 walk_cooldown = 0
-game_status = "loadlevel"
+game_status = "shop"
 running = True
 
 #  gameover state
 gameover_status = False
 pause_status = False
+shop_status = False
 
 def main():
     global running
@@ -73,6 +74,8 @@ def main():
         
         elif game_status == "pause":
             pause()
+        elif game_status == "shop":
+            shop()
     pg.quit()
 
 def game(level, gui, player, enemies, items):
@@ -469,6 +472,7 @@ class Button():
         self.rect.x = position[0]
         self.rect.y = position[1]
         self.color = color
+        self.textStr = text
 
     def draw(self):
         self.image.fill(self.color)
@@ -483,6 +487,9 @@ class Button():
             if self.rect.collidepoint(pg.mouse.get_pos()):
                 return True
         return False
+
+    def get_text(self):
+        return self.textStr
 
 
 class Item():
@@ -550,8 +557,104 @@ class GUI():
     def get_coins(self):
         return self.coins
 
-    
-    
+
+buttons_buy_shop = []
+def shop():
+    global shop_status
+    global buttons_buy_shop
+
+    player_inv = read_player()
+    shop_items = read_shop()
+
+    if shop_status == False:
+        buttons_buy_shop = []
+        fond = pg.Surface((screen_width,screen_height))
+        fond.fill((200,200,200))
+
+        image_shop = pg.image.load('assets/images/SHOP.png')
+        position_x = ((tile*size_screen)/2)-(image_shop.get_width()/2)
+        position_y = (50)
+        screen.blit (fond,(0,0))
+        screen.blit(image_shop, (position_x, position_y))
+
+        #Text
+        font_gem = pg.font.Font(None, 30)
+        text_gem = font_gem.render(str(player_inv["pieces"]) + " Gems", 1, (10,10,10))
+        screen.blit(text_gem,(screen_width - text_gem.get_width()-50, 50))
+
+        space = 100
+        for item in shop_items:
+            print(item)
+            image_skin = pg.image.load(item["image"])
+            image_skin = pg.transform.scale(image_skin, (90, 90))
+            pos_y = (tile*size_screen)/2-(image_shop.get_height()/2)
+            screen.blit(image_skin, (space, pos_y))
+
+            #button buy item
+            if item["id"] in player_inv["inventory_skin"]:
+                button_buy = Button("Equiper", (space, pos_y + 100), (92, 50), (50,255,50))
+                button_buy.draw()
+                buttons_buy_shop.append(button_buy)
+            else:
+                button_buy = Button("Acheter", (space, pos_y + 100), (92, 50), (50,50,50))
+                button_buy.draw()
+                buttons_buy_shop.append(button_buy)
+
+            #text price
+            font_price = pg.font.Font(None, 25)
+            text_price = font_price.render("Prix: "+ str(item["price"]), 1, (10,10,10))
+            screen.blit(text_price,((space+15, pos_y + 150)))
+
+            space += image_skin.get_width()+50
+
+        shop_status = True
+    else:
+        
+        for button in buttons_buy_shop:
+            if button.is_clicked() and button.get_text() == "Acheter":
+                for item in shop_items:
+                    if item["id"] == buttons_buy_shop.index(button):
+                        if player_inv["pieces"] >= item["price"] and item["id"] not in player_inv["inventory_skin"]:
+                            add_skin_inventory(item["id"])
+                            modify_gems(-item["price"])
+                            shop_status = False
+            elif button.is_clicked() and button.get_text() == "Equiper":
+                change_skin_ative(buttons_buy_shop.index(button))
+    pg.display.flip()
+
+
+def read_player():
+    with open('player.json', 'r') as file_open:
+        file = json.load(file_open)
+        return file
+
+def read_shop():
+    with open('data.json', 'r') as file_open:
+        file = json.load(file_open) 
+        shop_file = file["shop"]
+        return shop_file   
+
+
+def modify_gems(value_modified):
+    with open('player.json', 'r') as file_open:
+        data = json.load(file_open)
+        data["pieces"] = data["pieces"] + value_modified
+        with open("player.json", "w") as json_file:
+            json.dump(data, json_file, indent=4)
+
+def add_skin_inventory(id):
+    with open('player.json', 'r') as file_open:
+        data = json.load(file_open)
+        data["inventory_skin"].append(id)
+        with open("player.json", "w") as json_file:
+            json.dump(data, json_file, indent=4) 
+
+def change_skin_ative(id):
+    with open('player.json', 'r') as file_open:
+        data = json.load(file_open)
+        data["active_skin"] = id
+        with open("player.json", "w") as json_file:
+            json.dump(data, json_file, indent=4) 
 
 if __name__ == "__main__":
     main()

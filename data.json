@@ -259,5 +259,25 @@
                 "assets/objects/obsatcle_1.png"
             ]
         }
+    ],
+    "shop": [
+        {
+            "id": 0,
+            "nom": "NTM",
+            "price": 10,
+            "image": "assets/player/perso_d2.png"
+        },
+        {
+            "id": 1,
+            "nom": "NTM2",
+            "price": 20,
+            "image": "assets/objects/pierre_1.png"
+        },
+        {
+            "id": 2,
+            "nom": "NTL3",
+            "price": 50,
+            "image": "assets/objects/pierre_1.png"
+        }
     ]
 }
