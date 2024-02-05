@@ -1,0 +1,49 @@
+def editor():
+    global running
+    global tile
+    global screen_width
+    global screen_height
+    
+
+    # Add grid
+    for x in range(0, screen_width, tile):
+        pg.draw.line(screen, (255, 255, 255), (x, 0), (x, screen_height))
+    for y in range(0, screen_height, tile):
+        pg.draw.line(screen, (255, 255, 255), (0, y), (screen_width, y))
+
+    # Add buttons
+    save_button = Button("assets/mod/buttons/CREER-UN-NIVEAU.png", 10, 10)
+    save_button.draw()
+    load_button = Button("assets/mod/buttons/CREER-UN-NIVEAU.png", 10, 60)
+    load_button.draw()
+    exit_button = Button("assets/mod/buttons/CREER-UN-NIVEAU.png", 10, 110)
+    exit_button.draw()
+
+    # Add tiles
+    tiles = []
+    for x in range(0, screen_width, tile):
+        for y in range(0, screen_height, tile):
+            rect = pg.Rect(x, y, tile, tile)
+            tiles.append(rect)
+
+    while running:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+
+            if pg.mouse.get_pressed()[0]:
+                pos = pg.mouse.get_pos()
+                for tile in tiles:
+                    if tile.collidepoint(pos):
+                        pg.draw.rect(screen, (255, 0, 0), tile)
+
+            if save_button.is_clicked():
+                save_level(tiles)
+
+            if load_button.is_clicked():
+                load_level(tiles)
+
+            if exit_button.is_clicked():
+                running = False
+
+        pg.display.flip()

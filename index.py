@@ -181,7 +181,6 @@ def levelScreen():
 
 
 def directions():
-
         gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
         messageToScreen("Regles", black, -200, size = "large")
         messageToScreen("Utilisez les fleches pour vous deplacer",black,-100)
@@ -230,7 +229,7 @@ def main():
             level.load_level()
             player_init_position = level.get_player_init_position()
             print("Player", player_init_position)
-            player = Player(player_init_position[0], player_init_position[1])
+            player = Player(player_init_position[0], player_init_position[1], [get_current_skin()])
             gui = GUI()
             for i in level.get_enemies():
                 enemy = Enemy()
@@ -308,6 +307,7 @@ def game(level, gui, player, enemies, items):
             item.set_state(False)
             items.remove(item)
             player.add_coin()
+            modify_gems(1)
             gui.set_coins(player.get_coins())
             print("Coin", player.get_coins(), gui.get_coins())
             if len(items) == 0:
@@ -490,7 +490,7 @@ class Entity(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self)
 
 class Player(Entity):
-    def __init__(self, x, y):
+    def __init__(self, x, y, skins):
         Entity.__init__(self)
         self.image = pg.Surface((tile, tile))
         self.image.fill((255, 255, 255))
@@ -500,9 +500,7 @@ class Player(Entity):
         self.state = "idle"
         self.direction = "south" # north, south, east, west
         self.frame_skin = 0
-        self.skin = ["assets/player/personnage.png", "assets/player/perso_d1.png",
-                        "assets/player/perso_d2.png", "assets/player/perso_d3.png",
-                    ]
+        self.skin = [skins[0]]
         self.cooldown_skin = 0
         self.coins = 0
     
@@ -845,8 +843,13 @@ def change_skin_ative(id):
         data["active_skin"] = id
         with open("player.json", "w") as json_file:
             json.dump(data, json_file, indent=4) 
-    
-    
+
+def get_current_skin():
+    with open('player.json', 'r') as file_open:
+        data = json.load(file_open)
+        with open('data.json', 'r') as file_open:
+            file = json.load(file_open)
+            return file["shop"][data["active_skin"]]["image"]
 
 if __name__ == "__main__":
     main()

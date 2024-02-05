@@ -270,8 +270,8 @@
         {
             "id": 1,
             "nom": "NTM2",
-            "price": 20,
-            "image": "assets/objects/pierre_1.png"
+            "price": 2,
+            "image": "assets/player/skin_1.png"
         },
         {
             "id": 2,

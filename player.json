@@ -1,8 +1,8 @@
 {
-    "pieces": 50,
-    "active_skin": 0,
+    "pieces": 25,
+    "active_skin": 1,
     "inventory_skin": [
         0,
-        2
+        1
     ]
 }
