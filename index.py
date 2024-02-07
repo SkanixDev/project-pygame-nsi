@@ -596,6 +596,7 @@ class Enemy(Entity):
         self.type = ""
         self.cool_down = 0
         self.cool_down_time = 0.8
+        self.direction = "south" # north, south, east, west
     
     def load(self, type: str, x: int, y: int, speed: int,from_x: int, from_y: int,to_x: int, to_y: int):
         self.type = type
@@ -623,12 +624,16 @@ class Enemy(Entity):
                 if self.cool_down <= 0:
                     if self.rect.x < self.to_x:
                         self.move(1, 0)
+                        self.direction = "east"
                     elif self.rect.x > self.to_x:
                         self.move(-1, 0)
+                        self.direction = "west"
                     elif self.rect.y < self.to_y:
                         self.move(0, 1)
+                        self.direction = "south"
                     elif self.rect.y > self.to_y:
                         self.move(0, -1)
+                        self.direction = "north"
                     self.cool_down = self.cool_down_time
                 else:
                     self.cool_down -= 0.15
@@ -642,6 +647,14 @@ class Enemy(Entity):
 
     def draw(self):
         img = pg.image.load("assets/enemies/black_fly.png")
+        if self.direction == "south":
+            img = pg.transform.rotate(img, 0)
+        elif self.direction == "north":
+            img = pg.transform.rotate(img, 180)
+        elif self.direction == "east":
+            img = pg.transform.rotate(img, 90)
+        elif self.direction == "west":
+            img = pg.transform.rotate(img, 270)
         screen.blit(img, (self.rect.x, self.rect.y))
         pass
 

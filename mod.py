@@ -4,6 +4,7 @@ import json
 # Variables
 tile = 46
 size_screen = 20
+game_size = 16
 screen_width = tile*size_screen
 screen_height = tile*size_screen
 screen = pg.display.set_mode((screen_width, screen_height))
@@ -13,6 +14,16 @@ pg.display.set_caption('Level Editor')
 timer = pg.time.Clock()
 running = True
 game_status = "menu"
+
+
+background_textures = ["assets/backgrounds/fond_2.png",
+                "assets/backgrounds/fond_1.png"]
+objects_textures = ["assets/objects/vide.png",
+                "assets/objects/obsatcle_1.png"]
+items_textures = ["assets/items/coin.png"]              
+
+# Text 
+font = pg.font.Font(None, 36)
 
 def main():
     global game_status
@@ -64,36 +75,94 @@ def editor():
     subtitle = pg.image.load("assets/mod/images/EDITOR.png")
     screen.blit(subtitle, (pos_x_title+title.get_width() - subtitle.get_width()/1.5, 130+title.get_height()))
 
-    # Add grid (just for 16*16 rows)
-    tiles = []
-    for x in range(0, tile*16, tile):
-        pg.draw.line(screen, (0,0,0), (x, 0), (x, tile*16))
-        for y in range(0, tile*16, tile):
-            pg.draw.line(screen, (0,0,0), (0, y), (tile*16, y))
-            rect = pg.Rect(x, y, tile, tile)
-            tiles.append(rect)
-
     # Draw border around
     pg.draw.rect(screen, (0,0,0), (0, 0, tile*16, tile*16), 3)
 
-    # Add buttons
-    save_button = Button("assets/mod/buttons/CREER-UN-NIVEAU.png", 0, 0)
-    save_button.draw()
-    back_button = Button("assets/mod/buttons/CREER-UN-NIVEAU.png", 0, 50)
-    back_button.draw()
+    # Layer button
+    background = [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    ]
+    objects = [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    ]
+    items = []
+    enemy= []
+
+
+    # Add text section
+    title_section_layer = font.render("Couches", True, (0,0,0))
+    screen.blit(title_section_layer, (screen_width-tile*4, 50))
+
+    # add all backgrounds button
+    title_section_layer = font.render("Fonds", True, (0,0,0))
+    screen.blit(title_section_layer, (screen_width-tile*4, 90))
+
+    background_buttons = []
+    selected_background_layer = 0
+    for i in range(len(background_textures)):
+        background_buttons.append(Button(background_textures[i], screen_width-tile*4+i*tile, 150))
+        background_buttons[i].draw()
+        if selected_background_layer == i:
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 150, tile, tile), 3)
+
+
+    # add collision for each tile
+    background_tiles_editor = []
+    for x in range(0, tile*game_size, tile):
+        for y in range(0, tile*game_size, tile):
+            rect = pg.Rect(x, y, tile, tile)
+            background_tiles_editor.append(rect)    
+
+
 
     while running:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
 
-        if save_button.is_clicked():
-            game_status = "menu"
-            running = False
-
-        if back_button.is_clicked():
-            game_status = "menu"
-            running = False
+        for i in range(len(background_buttons)):
+            if background_buttons[i].is_clicked():
+                selected_background_layer = i
+                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 150, tile, tile), 3)
+                
+        # Add grid (just for 16*16 rows)
+        tiles = []
+        for x in range(0, tile*game_size, tile):
+            pg.draw.line(screen, (0,0,0), (x, 0), (x, tile*16))
+            for y in range(0, tile*game_size, tile):
+                pg.draw.line(screen, (0,0,0), (0, y), (tile*16, y))
+                rect = pg.Rect(x, y, tile, tile)
+                tiles.append(rect)
 
         pg.display.flip()
 
