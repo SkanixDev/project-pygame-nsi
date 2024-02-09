@@ -3,9 +3,9 @@ import json
 
 # Variables
 tile = 46
-size_screen = 20
+size_screen = 17
 game_size = 16
-screen_width = tile*size_screen
+screen_width = tile*size_screen+tile*4
 screen_height = tile*size_screen
 screen = pg.display.set_mode((screen_width, screen_height))
 
@@ -20,7 +20,8 @@ background_textures = ["assets/backgrounds/fond_2.png",
                 "assets/backgrounds/fond_1.png"]
 objects_textures = ["assets/objects/vide.png",
                 "assets/objects/obsatcle_1.png"]
-items_textures = ["assets/items/coin.png"]              
+items_textures = ["assets/objects/pierre_1.png"]              
+enemies_textures = ["assets/enemies/black_fly.png"]
 
 # Text 
 font = pg.font.Font(None, 36)
@@ -118,10 +119,11 @@ def editor():
     items = []
     enemy= []
 
-
     # Add text section
     title_section_layer = font.render("Couches", True, (0,0,0))
     screen.blit(title_section_layer, (screen_width-tile*4, 50))
+
+    selected_layer = 0 # 0: background 1: object 
 
     # add all backgrounds button
     title_section_layer = font.render("Fonds", True, (0,0,0))
@@ -135,6 +137,41 @@ def editor():
         if selected_background_layer == i:
             pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 150, tile, tile), 3)
 
+    # add all objects button
+    title_section_layer = font.render("Objets", True, (0,0,0))
+    screen.blit(title_section_layer, (screen_width-tile*4, 300))
+
+    objects_buttons = []
+    selected_objects_layer = 0
+    for i in range(len(objects_textures)):
+        objects_buttons.append(Button(objects_textures[i], screen_width-tile*4+i*tile, 350))
+        objects_buttons[i].draw()
+        if selected_objects_layer == i:
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 350, tile, tile), 3)
+
+    # add all items button
+    title_section_layer = font.render("Items", True, (0,0,0))
+    screen.blit(title_section_layer, (screen_width-tile*4, 500))
+
+    items_buttons = []
+    selected_items_layer = 0
+    for i in range(len(items_textures)):
+        items_buttons.append(Button(items_textures[i], screen_width-tile*4+i*tile, 550))
+        items_buttons[i].draw()
+        if selected_items_layer == i:
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 550, tile, tile), 3)
+
+    # add all enemies button
+    title_section_layer = font.render("Ennemis", True, (0,0,0))
+    screen.blit(title_section_layer, (screen_width-tile*4, 700))
+
+    enemies_buttons = []
+    selected_enemies_layer = 0
+    for i in range(len(enemies_textures)):
+        enemies_buttons.append(Button(enemies_textures[i], screen_width-tile*4+i*tile, 750))
+        enemies_buttons[i].draw()
+        if selected_enemies_layer == i:
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 750, tile, tile), 3)
 
     # add collision for each tile
     background_tiles_editor = []
@@ -143,18 +180,100 @@ def editor():
             rect = pg.Rect(x, y, tile, tile)
             background_tiles_editor.append(rect)    
 
-
-
     while running:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
 
+        # Choice background
         for i in range(len(background_buttons)):
             if background_buttons[i].is_clicked():
                 selected_background_layer = i
+                selected_layer = 0
                 pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 150, tile, tile), 3)
-                
+                for j in range(len(background_buttons)):    
+                    if j != i:
+                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+j*tile, 150, tile, tile), 3)
+
+        # Choice objects
+        for i in range(len(objects_buttons)):
+            if objects_buttons[i].is_clicked():
+                selected_objects_layer = i
+                selected_layer = 1
+                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 350, tile, tile), 3)
+                for j in range(len(objects_buttons)):    
+                    if j != i:
+                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+j*tile, 350, tile, tile), 3)
+
+        # Choice items
+        for i in range(len(items_buttons)):
+            if items_buttons[i].is_clicked():
+                selected_items_layer = i
+                selected_layer = 2
+                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 550, tile, tile), 3)
+                for j in range(len(items_buttons)):    
+                    if j != i:
+                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+j*tile, 550, tile, tile), 3)
+
+        # Choice enemies
+        for i in range(len(enemies_buttons)):
+            if enemies_buttons[i].is_clicked():
+                selected_enemies_layer = i
+                selected_layer = 3
+                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 750, tile, tile), 3)
+                for j in range(len(enemies_buttons)):    
+                    if j != i:
+                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+j*tile, 750, tile, tile), 3)
+        
+
+        # Detect click on background and draw it
+        if selected_layer == 0:
+            for rect in background_tiles_editor:
+                if rect.collidepoint(pg.mouse.get_pos()):
+                    if pg.mouse.get_pressed()[0] == 1:
+                        x = rect.x//tile
+                        y = rect.y//tile
+                        background[y][x] = selected_background_layer
+        elif selected_layer == 1:
+            for rect in background_tiles_editor:
+                if rect.collidepoint(pg.mouse.get_pos()):
+                    if pg.mouse.get_pressed()[0] == 1:
+                        x = rect.x//tile
+                        y = rect.y//tile
+                        objects[y][x] = selected_objects_layer
+        elif selected_layer == 2:
+            for rect in background_tiles_editor:
+                if rect.collidepoint(pg.mouse.get_pos()):
+                    if pg.mouse.get_pressed()[0] == 1:
+                        x = rect.x//tile
+                        y = rect.y//tile
+                        
+                        if not any(item["x"] == x and item["y"] == y for item in items):
+                            items.append({
+                                "type": selected_items_layer,
+                                "x": x,
+                                "y": y
+                            })
+                        else:
+                            items = [item for item in items if not (item["x"] == x and item["y"] == y)]
+        
+        # Draw background
+        for y in range(len(background)):
+            for x in range(len(background[y])):
+                screen.blit(pg.image.load(background_textures[background[y][x]]), (x*tile, y*tile))
+
+        # Draw objects
+        for y in range(len(objects)):
+            for x in range(len(objects[y])):
+                image = pg.image.load(objects_textures[objects[y][x]])
+                if selected_layer != 1:
+                    image.set_alpha(120)
+                screen.blit(image, (x*tile, y*tile))
+
+        # Draw items
+        for item in items:
+            screen.blit(pg.image.load(items_textures[item["type"]]), (item["x"]*tile, item["y"]*tile))
+
         # Add grid (just for 16*16 rows)
         tiles = []
         for x in range(0, tile*game_size, tile):

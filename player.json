@@ -1,8 +1,9 @@
 {
-    "pieces": 315,
-    "active_skin": 2,
+    "pieces": 325,
+    "active_skin": 1,
     "inventory_skin": [
         0,
-        2
+        2,
+        1
     ]
 }
