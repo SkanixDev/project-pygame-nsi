@@ -14,6 +14,7 @@ pg.display.set_caption('Level Editor')
 timer = pg.time.Clock()
 running = True
 game_status = "menu"
+editor_filename = None
 
 
 background_textures = ["assets/backgrounds/fond_2.png",
@@ -25,6 +26,7 @@ enemies_textures = ["assets/enemies/black_fly.png"]
 
 # Text 
 font = pg.font.Font(None, 36)
+xs_font = pg.font.Font(None, 24)
 
 def main():
     global game_status
@@ -52,20 +54,144 @@ def main():
                 running = False
 
         if create_level_button.is_clicked():
-            game_status = "editor"
-
+            game_status = "create_level"
 
         if game_status == "editor":
             editor()
-
+        elif game_status == "create_level":
+            create_level()
+        # elif game_status == "select_level":
+        #     select_level()
 
         pg.display.flip()
 
     pg.quit()
 
-def editor():
+
+
+def create_level():
+    global running
+    global editor_filename
+
+    running_create_level = True
+    pg.display.set_mode((tile*7, tile*4))
+
+    # add background
+    screen.fill((200,200,200))
+
+    title = font.render("Nom du niveau", True, (0,0,0))
+    screen.blit(title, (tile, 10))
+
+    # Input text 
+    input_text = pg.Rect(tile, 50, tile*5, tile)
+    color = (255,255,255)
+    active = False
+    text = ""
+
+    # create button
+    create_button = Button("assets/mod/buttons/CREER.png", tile*3, tile*3)
+    create_button.draw()
+
+    while running_create_level:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+
+            if event.type == pg.MOUSEBUTTONDOWN:
+                if input_text.collidepoint(event.pos):
+                    active = True
+                else:
+                    active = False  
+
+            if event.type == pg.KEYDOWN:
+                if active:
+                    if event.key == pg.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        if len(text) < 10:
+                            text += event.unicode
+
+        if active:
+            color = (255,255,255)
+        else:
+            color = (150, 150, 150) 
+        
+        pg.draw.rect(screen, color, input_text)
+
+        txt_surface = font.render(text, True, (0,0,0))
+        screen.blit(txt_surface, (input_text.x+5, input_text.y+5))
+
+        if create_button.is_clicked():
+            with open("data.json", "r+") as file:
+                content = json.load(file)
+                levels = content["levels"]
+                print(content)
+                level_found = False
+                for level in levels:
+                    if level["name"] == text:
+                        level_found = True
+                if level_found == True:
+                    error_msg = xs_font.render("Ce niveau existe déjà !", True, (240,0,0))
+                    screen.blit(error_msg, (tile, tile*2+20))
+                else:
+                    print("AJOUTER")
+                    levels.append({
+                    "id": len(levels),
+                    "name": text,
+                    "description": "Niveau créé par l'éditeur",
+                    "textures_map": 0,
+                    "player_coordinates": [1,1],
+                    "background" : [
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    ],
+                    "objects": [
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                    ],
+                    "items" : [],
+                    "enemy": [] 
+                })
+                file.seek(0) 
+                json.dump(content, file)
+                file.truncate()
+                running_create_level = False
+                editor(len(levels)-1)
+        pg.display.flip()
+
+def editor(idlevel):
     global game_status
     global running
+
+    screen = pg.display.set_mode((screen_width, screen_height))
     screen.fill((200,200,200))
 
     # Add title centered
@@ -79,45 +205,26 @@ def editor():
     # Draw border around
     pg.draw.rect(screen, (0,0,0), (0, 0, tile*16, tile*16), 3)
 
-    # Layer button
-    background = [
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    ]
-    objects = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    ]
+    # Load level
+    background = []
+    objects = []
     items = []
-    enemy= []
+    enemies = [] 
+    with open("data.json", "r") as file:
+        content = json.load(file)
+        levels = content["levels"]
+        for level in levels:
+            print(level["id"], idlevel)
+            if level["id"] == idlevel:
+                background = level["background"]
+                objects = level["objects"]
+                items = level["items"]
+                enemies = level["enemy"]
+                print("FOUND")
+
+    # Button events
+    save_button = Button("assets/mod/buttons/SAUVEGARDER.png", tile*1, screen_height-tile*1)
+    save_button.draw()
 
     # Add text section
     title_section_layer = font.render("Couches", True, (0,0,0))
@@ -167,11 +274,16 @@ def editor():
 
     enemies_buttons = []
     selected_enemies_layer = 0
+    first_enemy_position = (0,0)
+    second_enemy_position = (0,0)
+    
     for i in range(len(enemies_textures)):
         enemies_buttons.append(Button(enemies_textures[i], screen_width-tile*4+i*tile, 750))
         enemies_buttons[i].draw()
         if selected_enemies_layer == i:
             pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 750, tile, tile), 3)
+
+
 
     # add collision for each tile
     background_tiles_editor = []
@@ -252,10 +364,13 @@ def editor():
                             items.append({
                                 "type": selected_items_layer,
                                 "x": x,
-                                "y": y
+                                "y": y,
+                                "image": "assets/objects/pierre_1.png"
                             })
                         else:
                             items = [item for item in items if not (item["x"] == x and item["y"] == y)]
+        elif selected_layer == 3:
+            print("Please select an enemy")
         
         # Draw background
         for y in range(len(background)):
@@ -282,6 +397,20 @@ def editor():
                 pg.draw.line(screen, (0,0,0), (0, y), (tile*16, y))
                 rect = pg.Rect(x, y, tile, tile)
                 tiles.append(rect)
+
+        if save_button.is_clicked():
+            with open("data.json", "r+") as file:
+                content = json.load(file)
+                levels = content["levels"]
+                for level in levels:
+                    if level["id"] == idlevel:
+                        level["background"] = background
+                        level["objects"] = objects
+                        level["items"] = items
+                        level["enemy"] = enemies
+                file.seek(0) 
+                json.dump(content, file)
+                file.truncate()
 
         pg.display.flip()
 
