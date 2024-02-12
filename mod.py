@@ -47,6 +47,8 @@ def main():
 
     create_level_button = Button("assets/mod/buttons/CREER-UN-NIVEAU.png", screen_width/2 - 100, 400)
     create_level_button.draw()
+    select_level_button = Button("assets/mod/buttons/liste-des-niveaux.png", screen_width/2 - 110, 500)
+    select_level_button.draw()
 
     while running:
         for event in pg.event.get():
@@ -55,18 +57,62 @@ def main():
 
         if create_level_button.is_clicked():
             game_status = "create_level"
+        elif select_level_button.is_clicked():
+            game_status = "select_level"
 
         if game_status == "editor":
-            editor()
+            editor(0)
         elif game_status == "create_level":
             create_level()
-        # elif game_status == "select_level":
-        #     select_level()
+        elif game_status == "select_level":
+            select_level()
 
         pg.display.flip()
 
     pg.quit()
 
+def select_level():
+    global running
+    global game_status
+
+    screen = pg.display.set_mode((screen_width, screen_height))
+    screen.fill((200,200,200))
+
+    # Add title centered
+    title = pg.image.load("assets/images/titre.png")
+    pos_x_title = screen_width/2 - title.get_width()/2
+    screen.blit(title, (pos_x_title, 150))
+    # Add subtitle centered
+    subtitle = pg.image.load("assets/mod/images/EDITOR.png")
+    screen.blit(subtitle, (pos_x_title+title.get_width() - subtitle.get_width()/1.5, 130+title.get_height()))
+
+    # Load level
+    with open("data.json", "r") as file:
+        content = json.load(file)
+        levels = content["levels"]
+
+    # Add levels
+    levels_buttons = []
+    for i in range(len(levels)):
+        if levels[i]["locked"] == False:
+            button_level = Button("assets/mod/buttons/LEVEL.png", 20, 400 + i*50)
+            levels_buttons.append({
+                "button": button_level,
+                "level": levels[i]
+            })
+            button_level.draw()
+
+    while running:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+
+        for i in range(len(levels_buttons)):
+            if levels_buttons[i]["button"].is_clicked():
+                editor(levels_buttons[i]["level"]["id"])
+                # game_status = "editor"
+
+        pg.display.flip()
 
 
 def create_level():
@@ -140,6 +186,7 @@ def create_level():
                     "name": text,
                     "description": "Niveau créé par l'éditeur",
                     "textures_map": 0,
+                    "locked": False,
                     "player_coordinates": [1,1],
                     "background" : [
                         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -210,6 +257,7 @@ def editor(idlevel):
     objects = []
     items = []
     enemies = [] 
+    player = []
     with open("data.json", "r") as file:
         content = json.load(file)
         levels = content["levels"]
@@ -220,6 +268,7 @@ def editor(idlevel):
                 objects = level["objects"]
                 items = level["items"]
                 enemies = level["enemy"]
+                player = level["player_coordinates"]
                 print("FOUND")
 
     # Button events

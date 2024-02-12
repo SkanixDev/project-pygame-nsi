@@ -1,4 +1,5 @@
 import pygame as pg
+from pygame import mixer
 import json
 
 tile = 46
@@ -10,12 +11,24 @@ screen = pg.display.set_mode((screen_width, screen_height))
 design_lvl = 1 # 0: low, 1: high
 
 pg.init()
+mixer.init()
 pg.display.set_caption('Jeu')
 timer = pg.time.Clock()
 selected_level = 0
 walk_cooldown = 0
 game_status = "menu"
 running = True
+sound_on = True
+
+menu_music = mixer.Sound('assets/sons/bgmusic.wav')
+death_sound = mixer.Sound('assets/sons/mort.wav')
+mixer.music.set_volume(0.2)
+
+if sound_on:
+    pg.mixer.Sound.play(menu_music)
+else:
+    pg.mixer.stop(menu_music)
+
 
 #  gameover state
 gameover_status = False
@@ -24,19 +37,48 @@ shop_status = False
 level_screen_status = False
 
 ## Nicholas
+        
+
 def startScreen():
+        global game_status
+
+        button_lvl_startScreen = ButtonImage("assets/images/niveaux.png", (290,320), (180,60))
+        button_regles_startScreen = ButtonImage("assets/images/regles.png", (90,330), (180,60))
+        button_quit_startScreen = ButtonImage("assets/images/quitter.png", (490,410), (180,70))
+        button_sett_startScreen = ButtonImage("assets/images/parametres.png", (290,410), (180,70))
+        button_shop_startScreen = ButtonImage("assets/images/shop_menu.png", (490,330), (180,60))
+        button_mod_startScreen = ButtonImage("assets/images/mod.png", (90,400), (180,70))
 
         gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
-
-        messageToScreen("Gem Raider", black, -100, size = "large")
-        button("Niveaux",100, 325,150,50, light_green, green, action = "lvl")
-        button("Regles",300, 325,150,50, light_yellow, yellow, action = "directions")
-        button("Quitter",500, 325,150,50, light_red, red, action = "quit")
-        button("Parametres", 100, 400,150,50, gray, light_blue, action = "sett")
-        button("Shop", 300, 400,150,50, gray, light_blue, action = "shop")
-        button("Modificateur", 500, 400,150,50, gray, light_blue, action = "mod")
+        titre = pg.image.load("assets/images/titre.png")
+        screen.blit(titre, (170, 200))
        
+        # Draw buttons
+        button_regles_startScreen.draw()
+        button_quit_startScreen.draw()
+        button_sett_startScreen.draw()
+        button_shop_startScreen.draw()
+        button_mod_startScreen.draw()
+        button_lvl_startScreen.draw()
 
+
+        if button_lvl_startScreen.is_clicked():
+            game_status = "lvl"
+
+        if button_regles_startScreen.is_clicked():
+            game_status = "regles"
+
+        if button_quit_startScreen.is_clicked():
+            game_status = "quit"
+
+        if button_shop_startScreen.is_clicked():
+            game_status = "shop"
+
+        if button_sett_startScreen.is_clicked():
+            game_status = "sett"
+
+        if button_mod_startScreen.is_clicked():
+            game_status = "mod"
 
         pg.display.update()
         for event in pg.event.get():
@@ -44,6 +86,8 @@ def startScreen():
                 game = False
                 pg.quit()
                 quit()
+
+        
 display_width = 46*16
 display_height = 46*16
 
@@ -60,9 +104,9 @@ light_red = (230,0,0)
 light_yellow = (117,184,200)
 light_blue = (105,103,115)
 
-smallFont = pg.font.SysFont("Fantacy", 30)
-medFont = pg.font.SysFont("Fantacy", 40)
-largeFont = pg.font.SysFont("Fantacy", 55)
+smallFont = pg.font.SysFont("assets/fonts/zephyrea.ttf", 30)
+medFont = pg.font.SysFont("assets/fonts/zephyrea.ttf", 40)
+largeFont = pg.font.SysFont("assets/fonts/zephyrea.ttf", 55)
 
 
 
@@ -82,8 +126,8 @@ def text_objects(text, color, size):
     return textSurf, textSurf.get_rect()
 
 
-def messageToScreen(msg, color, y_displace = 0, size = "small"):
-    textSurface, textRect = text_objects(msg, color, size)
+def messageToScreen(msg, color, y_displace = 0, size = "small",):
+    textSurface, textRect = text_objects(msg, color, size,)
     textRect.center = (display_width/2), (display_height/2) + y_displace
     gameDisplay.blit(textSurface, textRect)
 
@@ -96,6 +140,7 @@ def text_to_button(msg, color, buttonX, buttonY, buttonWidth, buttonHeight, size
 def button(text, x, y, width, height, inactiveColor , activeColor,textColor = black, action = None, lvl = None):
     global game_status
     global selected_level
+    global sound_on
     cur = pg.mouse.get_pos()
     click = pg.mouse.get_pressed()
 
@@ -120,7 +165,9 @@ def button(text, x, y, width, height, inactiveColor , activeColor,textColor = bl
             if action == "lvlset" and lvl is not None:
                 selected_level = lvl
                 print("Selected level", selected_level)
-                game_status = "loadlevel"    
+                game_status = "loadlevel" 
+            if action == "son":
+                sound_on = not sound_on
 
     else:
         pg.draw.rect(gameDisplay, inactiveColor, (x,y,width,height))
@@ -130,10 +177,35 @@ def button(text, x, y, width, height, inactiveColor , activeColor,textColor = bl
 
 def settings():
         gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
-        messageToScreen("Paramètres", black, -200, size = "large")
-        button("Retour",70, 500,150,50, light_yellow, yellow, action = "main")
+        titre = pg.image.load("assets/images/parametres_maj.png")
+        screen.blit(titre, (190, 100))
         button("Qualité",290, 500,150,50, gray, light_blue, action = "none")
-        button("Quitter",500,500,150,50,light_red,red,action = "quit")
+        button("Son",290, 400,150,50, gray, light_blue, action = "son")
+        button_retour = ButtonImage("assets/images/retour.png", (70,500), (150,40))
+        button_quit = ButtonImage("assets/images/quitter.png", (515,500), (150,50))
+        button_retour.draw()
+        global game_status
+        if button_retour.is_clicked():
+            game_status = "menu"
+
+        pg.display.update()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                game = False
+                pg.quit()
+                quit()
+        
+        button_quit.draw()
+        if button_quit.is_clicked():
+            game_status = "quit"
+
+        pg.display.update()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                game = False
+                pg.quit()
+                quit()
+        
         pg.display.update()
 
         for event in pg.event.get():
@@ -148,47 +220,76 @@ def levelScreen():
 
     if level_screen_status == False:
         data = json.load(open('data.json'))
-        font = pg.font.Font(None, 36)
+        font = pg.font.Font("assets/fonts/zephyrea.ttf", 36)
     
 
         buttons = []
 
         gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
+        titre_lvl = pg.image.load("assets/images/niveaux_maj.png")
+        screen.blit(titre_lvl, (260, 100))
 
-        for i, level in enumerate(data['levels']):
-            x = 0
-            if i // 3:
-                x = 400
-            elif i // 2:
-                x = 450
-            elif i //1:
-                x = 500
-            y = 250
-
+    
+    for i, level in enumerate(data['levels']):
+            start_x = 60  
+            start_y = 250
+            x = start_x + (250 * i)
+            if i < 3:
+             y = start_y + (0 * i)
+            else:
+                y = start_y + (130)
+                x = start_x
             level_number = str(level['id'])
-            button(level_number, x, y, 150,50, light_yellow, yellow, action="lvlset", lvl=level_number)
+            button(level_number, x, y, 150, 50, light_yellow, yellow, action="lvlset", lvl=level_number)
+            button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
+            button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
             
-            messageToScreen("Niveaux", black, -200, size="large")
-            button("Retour", 70, 500, 150, 50, light_yellow, yellow, action="main")
-            button("Quitter", 500, 500, 150, 50, light_red, red, action="quit")
-
-            pg.display.flip()
-            level_screen_status = True
+            
+        
     else:
-            button("Retour", 70, 500, 150, 50, light_yellow, yellow, action="main")
-            button("Quitter", 500, 500, 150, 50, light_red, red, action="quit")
+            button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
+            button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
 
-
+    pg.display.update()
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            level = False
+            pg.quit()
+            quit()
 
 def directions():
         gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
-        messageToScreen("Regles", black, -200, size = "large")
+        titre = pg.image.load("assets/images/regles_maj.png")
+        screen.blit(titre, (275, 100))
         messageToScreen("Utilisez les fleches pour vous deplacer",black,-100)
         messageToScreen("Recuperez toutes les gems",black,-60)
         messageToScreen("Evitez les enemies",black,-20)
         messageToScreen("Amusez-vous !",blue,80, size = "medium")
-        button("Retour",70, 500,150,50, light_yellow, yellow, action = "main")
-        button("Quitter",500,500,150,50,light_red,red,action = "quit")
+        button_retour = ButtonImage("assets/images/retour.png", (70,500), (150,40))
+        button_quit = ButtonImage("assets/images/quitter.png", (500,500), (150,50))
+        button_retour.draw()
+        global game_status
+        if button_retour.is_clicked():
+            game_status = "menu"
+
+        pg.display.update()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                game = False
+                pg.quit()
+                quit()
+        
+        button_quit.draw()
+        if button_quit.is_clicked():
+            game_status = "quit"
+
+        pg.display.update()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                game = False
+                pg.quit()
+                quit()
+
         pg.display.update()
 
         for event in pg.event.get():
@@ -330,6 +431,7 @@ button_rejouer = None
 button_menu = None
 
 def gameover():
+    mixer.Sound.play(death_sound)
     global running
     global gameover_status
     global game_status
@@ -509,16 +611,16 @@ class Player(Entity):
         pass
 
     def draw(self):
-        if self.cooldown_skin <= 0:
-            if self.frame_skin < len(self.skin)-1:
-                self.frame_skin += 1
-            else:
-                self.frame_skin = 0
-            self.cooldown_skin = 0.3
-        else:
-            self.cooldown_skin -= 0.1
-        if self.state == "idle":
-            self.frame_skin = 0
+        # if self.cooldown_skin <= 0:
+        #     if self.frame_skin < len(self.skin)-1:
+        #         self.frame_skin += 1
+        #     else:
+        #         self.frame_skin = 0
+        #     self.cooldown_skin = 0.3
+        # else:
+        #     self.cooldown_skin -= 0.1
+        # if self.state == "idle":
+            # self.frame_skin = 0
         rotated_img = ""
         if self.direction == "south":
             rotated_img = pg.transform.rotate(pg.image.load(self.skin[self.frame_skin]), 0)
@@ -596,7 +698,6 @@ class Enemy(Entity):
         self.type = ""
         self.cool_down = 0
         self.cool_down_time = 0.8
-        self.direction = "south" # north, south, east, west
     
     def load(self, type: str, x: int, y: int, speed: int,from_x: int, from_y: int,to_x: int, to_y: int):
         self.type = type
@@ -624,16 +725,12 @@ class Enemy(Entity):
                 if self.cool_down <= 0:
                     if self.rect.x < self.to_x:
                         self.move(1, 0)
-                        self.direction = "east"
                     elif self.rect.x > self.to_x:
                         self.move(-1, 0)
-                        self.direction = "west"
                     elif self.rect.y < self.to_y:
                         self.move(0, 1)
-                        self.direction = "south"
                     elif self.rect.y > self.to_y:
                         self.move(0, -1)
-                        self.direction = "north"
                     self.cool_down = self.cool_down_time
                 else:
                     self.cool_down -= 0.15
@@ -647,14 +744,6 @@ class Enemy(Entity):
 
     def draw(self):
         img = pg.image.load("assets/enemies/black_fly.png")
-        if self.direction == "south":
-            img = pg.transform.rotate(img, 0)
-        elif self.direction == "north":
-            img = pg.transform.rotate(img, 180)
-        elif self.direction == "east":
-            img = pg.transform.rotate(img, 90)
-        elif self.direction == "west":
-            img = pg.transform.rotate(img, 270)
         screen.blit(img, (self.rect.x, self.rect.y))
         pass
 
@@ -694,6 +783,24 @@ class Button():
     
     def get_text(self):
         return self.textStr
+
+
+class ButtonImage():
+    def __init__(self, image, position, size) -> None:
+        self.image = pg.image.load(image)
+        self.x = position[0]
+        self.y = position[1]
+        self.image = pg.transform.scale(self.image, size)
+
+    def draw(self):
+        screen.blit(self.image, (self.x, self.y))
+        pass
+
+    def is_clicked(self):
+        if pg.mouse.get_pressed()[0]:
+            if self.x + self.image.get_width() > pg.mouse.get_pos()[0] > self.x and self.y + self.image.get_height() > pg.mouse.get_pos()[1] > self.y:
+                return True
+        return False
 
 
 class Item():
@@ -762,9 +869,15 @@ class GUI():
         return self.coins
 
 buttons_buy_shop = []
+button_buy_shop_retour = None
+button_buy_shop_quitter = None
 def shop():
     global shop_status
     global buttons_buy_shop
+    global button_buy_shop_quitter
+    global button_buy_shop_retour
+    global button
+    global game_status
 
     player_inv = read_player()
     shop_items = read_shop()
@@ -773,10 +886,16 @@ def shop():
         buttons_buy_shop = []
         screen.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
 
-        image_shop = pg.image.load('assets/images/SHOP.png')
-        position_x = ((tile*size_screen)/2)-(image_shop.get_width()/2)
+        titre = pg.image.load("assets/images/shop_maj.png")
+        position_x = ((tile*size_screen)/2)-(titre.get_width()/2)
         position_y = (50)
-        screen.blit(image_shop, (position_x, position_y))
+        screen.blit(titre, (position_x, position_y))
+
+        # Button back/quit 
+        button_buy_shop_retour = ButtonImage('assets/images/retour.png', (70, 500), (150, 50))
+        button_buy_shop_retour.draw()
+        button_buy_shop_quitter = ButtonImage('assets/images/quitter.png', (500, 500), (150, 50))
+        button_buy_shop_quitter.draw()
 
         #Text
         font_gem = pg.font.Font(None, 30)
@@ -788,7 +907,7 @@ def shop():
             print(item)
             image_skin = pg.image.load(item["image"])
             image_skin = pg.transform.scale(image_skin, (90, 90))
-            pos_y = (tile*size_screen)/2-(image_shop.get_height()/2)
+            pos_y = (tile*size_screen)/2-(titre.get_height()/2)
             screen.blit(image_skin, (space, pos_y))
 
             #button buy item
@@ -809,18 +928,25 @@ def shop():
             space += image_skin.get_width()+50
 
         shop_status = True
+
     else:
-        
-        for button in buttons_buy_shop:
-            if button.is_clicked() and button.get_text() == "Acheter":
+        global button
+        for button_buy in buttons_buy_shop:
+            if button_buy.is_clicked() and button_buy.get_text() == "Acheter":
                 for item in shop_items:
-                    if item["id"] == buttons_buy_shop.index(button):
+                    if item["id"] == buttons_buy_shop.index(button_buy):
                         if player_inv["pieces"] >= item["price"] and item["id"] not in player_inv["inventory_skin"]:
                             add_skin_inventory(item["id"])
                             modify_gems(-item["price"])
                             shop_status = False
-            elif button.is_clicked() and button.get_text() == "Equiper":
-                change_skin_ative(buttons_buy_shop.index(button))
+            elif button_buy.is_clicked() and button_buy.get_text() == "Equiper":
+                change_skin_ative(buttons_buy_shop.index(button_buy))
+        if button_buy_shop_retour.is_clicked():
+            game_status = "menu"
+            shop_status = False
+        if button_buy_shop_quitter.is_clicked():
+            pg.quit()
+            
     pg.display.flip()
 
 
@@ -866,7 +992,3 @@ def get_current_skin():
 
 if __name__ == "__main__":
     main()
-
-
-
-
