@@ -40,6 +40,7 @@ level_screen_status = False
         
 
 def startScreen():
+        global pause_status
         global game_status
 
         button_lvl_startScreen = ButtonImage("assets/images/niveaux.png", (290,320), (180,60))
@@ -48,7 +49,7 @@ def startScreen():
         button_sett_startScreen = ButtonImage("assets/images/parametres.png", (290,410), (180,70))
         button_shop_startScreen = ButtonImage("assets/images/shop_menu.png", (490,330), (180,60))
         button_mod_startScreen = ButtonImage("assets/images/mod.png", (90,400), (180,70))
-
+        
         gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
         titre = pg.image.load("assets/images/titre.png")
         screen.blit(titre, (170, 200))
@@ -243,9 +244,6 @@ def levelScreen():
             button(level_number, x, y, 150, 50, light_yellow, yellow, action="lvlset", lvl=level_number)
             button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
             button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
-            
-            
-        
     else:
             button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
             button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")

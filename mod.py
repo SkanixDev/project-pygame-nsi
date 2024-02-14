@@ -18,9 +18,16 @@ editor_filename = None
 
 
 background_textures = ["assets/backgrounds/fond_2.png",
-                "assets/backgrounds/fond_1.png"]
+                "assets/backgrounds/fond_1.png",
+                "assets/backgrounds/fond_3.png",
+                "assets/backgrounds/fond_gem.png",
+                "assets/backgrounds/fond_glace.png",]
 objects_textures = ["assets/objects/vide.png",
-                "assets/objects/obsatcle_1.png"]
+                "assets/objects/obsatcle_1.png",
+                "assets/objects/obstacle_vert1.png",
+                "assets/objects/obstacle_vert2.png",
+                "assets/objects/obstacle_gem.png",
+                "assets/objects/obstacle_glace.png",]
 items_textures = ["assets/objects/pierre_1.png"]              
 enemies_textures = ["assets/enemies/black_fly.png"]
 
@@ -288,10 +295,14 @@ def editor(idlevel):
     background_buttons = []
     selected_background_layer = 0
     for i in range(len(background_textures)):
-        background_buttons.append(Button(background_textures[i], screen_width-tile*4+i*tile, 150))
+
+        pos_x_background_layer = i % 4
+        pos_y_background_layer = i // 4
+
+        background_buttons.append(Button(background_textures[i], screen_width-tile*4+pos_x_background_layer*tile, 150+pos_y_background_layer*tile))
         background_buttons[i].draw()
         if selected_background_layer == i:
-            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 150, tile, tile), 3)
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_background_layer*tile, 150+pos_y_background_layer*tile, tile, tile), 3)
 
     # add all objects button
     title_section_layer = font.render("Objets", True, (0,0,0))
@@ -300,10 +311,14 @@ def editor(idlevel):
     objects_buttons = []
     selected_objects_layer = 0
     for i in range(len(objects_textures)):
-        objects_buttons.append(Button(objects_textures[i], screen_width-tile*4+i*tile, 350))
+
+        pos_x_objects_layer = i % 4
+        pos_y_objects_layer = i // 4 
+    
+        objects_buttons.append(Button(objects_textures[i], screen_width-tile*4+pos_x_objects_layer*tile, 350+pos_y_objects_layer*tile))
         objects_buttons[i].draw()
         if selected_objects_layer == i:
-            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 350, tile, tile), 3)
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_objects_layer*tile, 350+pos_y_objects_layer*tile, tile, tile), 3)
 
     # add all items button
     title_section_layer = font.render("Items", True, (0,0,0))
@@ -312,10 +327,14 @@ def editor(idlevel):
     items_buttons = []
     selected_items_layer = 0
     for i in range(len(items_textures)):
-        items_buttons.append(Button(items_textures[i], screen_width-tile*4+i*tile, 550))
+        
+        pos_x_items_layer = i % 4
+        pos_y_items_layer = i // 4
+
+        items_buttons.append(Button(items_textures[i], screen_width-tile*4+pos_x_items_layer*tile, 550+pos_y_items_layer*tile))
         items_buttons[i].draw()
         if selected_items_layer == i:
-            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 550, tile, tile), 3)
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_items_layer*tile, 550+pos_y_items_layer*tile, tile, tile), 3)
 
     # add all enemies button
     title_section_layer = font.render("Ennemis", True, (0,0,0))
@@ -341,6 +360,7 @@ def editor(idlevel):
             rect = pg.Rect(x, y, tile, tile)
             background_tiles_editor.append(rect)    
 
+    # Boucle de jeu de l'editeur
     while running:
         for event in pg.event.get():
             if event.type == pg.QUIT:
