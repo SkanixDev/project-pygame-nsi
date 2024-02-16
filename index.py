@@ -105,9 +105,9 @@ light_red = (230,0,0)
 light_yellow = (117,184,200)
 light_blue = (105,103,115)
 
-smallFont = pg.font.SysFont("assets/fonts/zephyrea.ttf", 30)
-medFont = pg.font.SysFont("assets/fonts/zephyrea.ttf", 40)
-largeFont = pg.font.SysFont("assets/fonts/zephyrea.ttf", 55)
+smallFont = pg.font.Font("assets/fonts/zephyrea.ttf", 30)
+medFont = pg.font.Font("assets/fonts/zephyrea.ttf", 40)
+largeFont = pg.font.Font("assets/fonts/zephyrea.ttf", 55)
 
 
 
@@ -232,21 +232,17 @@ def levelScreen():
 
     
     for i, level in enumerate(data['levels']):
-            start_x = 60  
-            start_y = 250
-            x = start_x + (250 * i)
-            if i < 3:
-             y = start_y + (0 * i)
-            else:
-                y = start_y + (130)
-                x = start_x
-            level_number = str(level['id'])
-            button(level_number, x, y, 150, 50, light_yellow, yellow, action="lvlset", lvl=level_number)
-            button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
-            button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
+        start_x = 60  
+        start_y = 250
+        x = start_x + (250 * (i % 3))
+        y = start_y + (130 * (i // 3))
+        level_number = str(level['id']+1)
+        button(level_number, x, y, 150, 50, light_yellow, yellow, action="lvlset", lvl=level_number)
+        button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
+        button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
     else:
-            button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
-            button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
+        button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
+        button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
 
     pg.display.update()
     for event in pg.event.get():
@@ -259,9 +255,9 @@ def directions():
         gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
         titre = pg.image.load("assets/images/regles_maj.png")
         screen.blit(titre, (275, 100))
-        messageToScreen("Utilisez les fleches pour vous deplacer",black,-100)
-        messageToScreen("Recuperez toutes les gems",black,-60)
-        messageToScreen("Evitez les enemies",black,-20)
+        messageToScreen("Utilisez les fleches pour vous deplacer",white,-100)
+        messageToScreen("Recuperez toutes les gems",white,-60)
+        messageToScreen("Evitez les enemies",white,-20)
         messageToScreen("Amusez-vous !",blue,80, size = "medium")
         button_retour = ButtonImage("assets/images/retour.png", (70,500), (150,40))
         button_quit = ButtonImage("assets/images/quitter.png", (500,500), (150,50))
@@ -365,6 +361,8 @@ def main():
             pass
         elif game_status == "mod":
              pass
+        elif game_status == "quit":
+            running = False
 
     pg.quit()
 
@@ -901,11 +899,14 @@ def shop():
         screen.blit(text_gem,(screen_width - text_gem.get_width()-50, 50))
 
         space = 100
+        line = 0
+        start_x = 30
+        start_y = 150
         for item in shop_items:
             print(item)
             image_skin = pg.image.load(item["image"])
             image_skin = pg.transform.scale(image_skin, (90, 90))
-            pos_y = (tile*size_screen)/2-(titre.get_height()/2)
+            pos_y = start_y + (line*170)
             screen.blit(image_skin, (space, pos_y))
 
             #button buy item
@@ -920,10 +921,16 @@ def shop():
 
             #text price
             font_price = pg.font.Font(None, 25)
-            text_price = font_price.render("Prix: "+ str(item["price"]), 1, (10,10,10))
+            color_text = (255,255,255)
+            if item["price"] > player_inv["pieces"]:
+                color_text = (255,0,0)
+            text_price = font_price.render("Prix: "+ str(item["price"]), 1, color_text)
             screen.blit(text_price,((space+15, pos_y + 150)))
 
             space += image_skin.get_width()+50
+            if space > 600:
+                space = 100
+                line += 1
 
         shop_status = True
 

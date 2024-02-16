@@ -21,13 +21,15 @@ background_textures = ["assets/backgrounds/fond_2.png",
                 "assets/backgrounds/fond_1.png",
                 "assets/backgrounds/fond_3.png",
                 "assets/backgrounds/fond_gem.png",
-                "assets/backgrounds/fond_glace.png",]
+                "assets/backgrounds/fond_glace.png",
+                "assets/backgrounds/fond_lave.png",]
 objects_textures = ["assets/objects/vide.png",
                 "assets/objects/obsatcle_1.png",
                 "assets/objects/obstacle_vert1.png",
                 "assets/objects/obstacle_vert2.png",
                 "assets/objects/obstacle_gem.png",
-                "assets/objects/obstacle_glace.png",]
+                "assets/objects/obstacle_glace.png",
+                "assets/objects/obstacle_lave.png",]
 items_textures = ["assets/objects/pierre_1.png"]              
 enemies_textures = ["assets/enemies/black_fly.png"]
 
