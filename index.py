@@ -2,6 +2,7 @@ import pygame as pg
 from pygame import mixer
 import json
 import os
+import math
 
 tile = 46
 size_screen = 16
@@ -216,9 +217,12 @@ def settings():
                 pg.quit()
                 quit()
 
+current_page_levelScreen = 1
 def levelScreen():
     global level_screen_status
     global selected_level
+    global game_status
+    global current_page_levelScreen
 
     if level_screen_status == False:
         data = json.load(open('data.json'))
@@ -230,19 +234,48 @@ def levelScreen():
         titre_lvl = pg.image.load("assets/images/niveaux_maj.png")
         screen.blit(titre_lvl, (260, 100))
 
+        levels_per_page = 6
+        total_levels = len(data['levels'])
+        total_pages = math.ceil(total_levels / levels_per_page)
+
+        start_index = (current_page_levelScreen - 1) * levels_per_page
+        end_index = min(start_index + levels_per_page, total_levels)
+
+        for i in range(start_index, end_index):
+            level = data['levels'][i]
+            start_x = 60  
+            start_y = 250
+            x = start_x + (250 * ((i - start_index) % 3))
+            y = start_y + (130 * ((i - start_index) // 3))
+            level_number = str(level['id'])
+            button(level_number, x, y, 150, 50, light_yellow, yellow, action="lvlset", lvl=level_number)
+
+        if current_page_levelScreen > 1:
+            previous_page_button = Button("<", (tile*3, tile*3), (46,46), light_yellow)
+            previous_page_button.draw()
+            if previous_page_button.is_clicked():
+                current_page_levelScreen -= 1
+                level_screen_status = False
+        if current_page_levelScreen < total_pages:
+            next_page_button = Button(">", (tile*12, tile*3), (46,46), light_yellow)
+            next_page_button.draw()
+            if next_page_button.is_clicked():
+                current_page_levelScreen += 1
+                level_screen_status = False
+
+        button_retour = ButtonImage("assets/images/retour.png", (70,500), (150,40))
+        button_quit = ButtonImage("assets/images/quitter.png", (515,500), (150,50))
+
     
-    for i, level in enumerate(data['levels']):
-        start_x = 60  
-        start_y = 250
-        x = start_x + (250 * (i % 3))
-        y = start_y + (130 * (i // 3))
-        level_number = str(level['id'])
-        button(level_number, x, y, 150, 50, light_yellow, yellow, action="lvlset", lvl=level_number)
-        button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
-        button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
-    else:
-        button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
-        button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
+
+        button_retour.draw()
+        if button_retour.is_clicked():
+            game_status = "menu"
+
+        button_quit.draw()
+        if button_quit.is_clicked():
+            game_status = "quit"
+
 
     pg.display.update()
     for event in pg.event.get():

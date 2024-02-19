@@ -282,6 +282,9 @@ def editor(idlevel):
     save_button = Button("assets/mod/buttons/SAUVEGARDER.png", tile*1, screen_height-tile*1)
     save_button.draw()
 
+    back_button = Button("assets/mod/buttons/RETOUR.png", tile*3, screen_height-tile*1)
+    back_button.draw()
+
     # Add text section
     title_section_layer = font.render("Couches", True, (0,0,0))
     screen.blit(title_section_layer, (screen_width-tile*4, 50))
@@ -299,10 +302,10 @@ def editor(idlevel):
         pos_x_background_layer = i % 4
         pos_y_background_layer = i // 4
 
-        background_buttons.append(Button(background_textures[i], screen_width-tile*4+pos_x_background_layer*tile, 150+pos_y_background_layer*tile))
+        background_buttons.append(Button(background_textures[i], screen_width-tile*4+pos_x_background_layer*tile, 130+pos_y_background_layer*tile))
         background_buttons[i].draw()
         if selected_background_layer == i:
-            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_background_layer*tile, 150+pos_y_background_layer*tile, tile, tile), 3)
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_background_layer*tile, 130+pos_y_background_layer*tile, tile, tile), 3)
 
     # add all objects button
     title_section_layer = font.render("Objets", True, (0,0,0))
@@ -315,10 +318,10 @@ def editor(idlevel):
         pos_x_objects_layer = i % 4
         pos_y_objects_layer = i // 4 
     
-        objects_buttons.append(Button(objects_textures[i], screen_width-tile*4+pos_x_objects_layer*tile, 350+pos_y_objects_layer*tile))
+        objects_buttons.append(Button(objects_textures[i], screen_width-tile*4+pos_x_objects_layer*tile, 330+pos_y_objects_layer*tile))
         objects_buttons[i].draw()
         if selected_objects_layer == i:
-            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_objects_layer*tile, 350+pos_y_objects_layer*tile, tile, tile), 3)
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_objects_layer*tile, 330+pos_y_objects_layer*tile, tile, tile), 3)
 
     # add all items button
     title_section_layer = font.render("Items", True, (0,0,0))
@@ -331,14 +334,14 @@ def editor(idlevel):
         pos_x_items_layer = i % 4
         pos_y_items_layer = i // 4
 
-        items_buttons.append(Button(items_textures[i], screen_width-tile*4+pos_x_items_layer*tile, 550+pos_y_items_layer*tile))
+        items_buttons.append(Button(items_textures[i], screen_width-tile*4+pos_x_items_layer*tile, 530+pos_y_items_layer*tile))
         items_buttons[i].draw()
         if selected_items_layer == i:
-            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_items_layer*tile, 550+pos_y_items_layer*tile, tile, tile), 3)
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+pos_x_items_layer*tile, 530+pos_y_items_layer*tile, tile, tile), 3)
 
     # add all enemies button
     title_section_layer = font.render("Ennemis", True, (0,0,0))
-    screen.blit(title_section_layer, (screen_width-tile*4, 700))
+    screen.blit(title_section_layer, (screen_width-tile*4, 600))
 
     enemies_buttons = []
     selected_enemies_layer = 0
@@ -346,13 +349,13 @@ def editor(idlevel):
     second_enemy_position = (0,0)
     
     for i in range(len(enemies_textures)):
-        enemies_buttons.append(Button(enemies_textures[i], screen_width-tile*4+i*tile, 750))
+        enemies_buttons.append(Button(enemies_textures[i], screen_width-tile*4+i*tile, 630))
         enemies_buttons[i].draw()
         if selected_enemies_layer == i:
-            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 750, tile, tile), 3)
+            pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+i*tile, 630, tile, tile), 3)
 
     # Add player button
-    player_button = Button("assets/player/perso_d2.png", tile*3, screen_height-tile*1)
+    player_button = Button("assets/player/perso_d2.png", tile*5, screen_height-tile*1)
     player_button.draw()
 
 
@@ -376,10 +379,10 @@ def editor(idlevel):
                 selected_layer = 0
                 line = i // 4
                 column = i % 4
-                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+column*tile, 150+line*tile, tile, tile), 3)
+                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+column*tile, 130+line*tile, tile, tile), 3)
                 for j in range(len(background_buttons)):    
                     if j != i:
-                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+(j%4)*tile, 150+(j//4)*tile, tile, tile), 3)
+                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+(j%4)*tile, 130+(j//4)*tile, tile, tile), 3)
 
         # Choice objects
         for i in range(len(objects_buttons)):
@@ -388,10 +391,10 @@ def editor(idlevel):
                 selected_layer = 1
                 line = i // 4
                 column = i % 4
-                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+column*tile, 350+line*tile, tile, tile), 3)
+                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+column*tile, 330+line*tile, tile, tile), 3)
                 for j in range(len(objects_buttons)):    
                     if j != i:
-                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+(j%4)*tile, 350+(j//4)*tile, tile, tile), 3)
+                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+(j%4)*tile, 330+(j//4)*tile, tile, tile), 3)
 
         # Choice items
         for i in range(len(items_buttons)):
@@ -400,10 +403,10 @@ def editor(idlevel):
                 selected_layer = 2
                 line = i // 4
                 column = i % 4
-                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+column*tile, 550+line*tile, tile, tile), 3)
+                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+column*tile, 530+line*tile, tile, tile), 3)
                 for j in range(len(items_buttons)):    
                     if j != i:
-                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+(j%4)*tile, 550+(j//4)*tile, tile, tile), 3)
+                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+(j%4)*tile, 530+(j//4)*tile, tile, tile), 3)
 
         # Choice enemies
         for i in range(len(enemies_buttons)):
@@ -412,10 +415,10 @@ def editor(idlevel):
                 selected_layer = 3
                 line = i // 4
                 column = i % 4
-                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+column*tile, 750+line*tile, tile, tile), 3)
+                pg.draw.rect(screen, (255,0,0), (screen_width-tile*4+column*tile, 630+line*tile, tile, tile), 3)
                 for j in range(len(items_buttons)):    
                     if j != i:
-                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+(j%4)*tile, 750+(j//4)*tile, tile, tile), 3)
+                        pg.draw.rect(screen, (200,200,200), (screen_width-tile*4+(j%4)*tile, 630+(j//4)*tile, tile, tile), 3)
 
         # Choice player
         if player_button.is_clicked():
@@ -486,7 +489,7 @@ def editor(idlevel):
                             first_enemy_position = (0,0)
                             second_enemy_position = (0,0)
         elif selected_layer == 4:
-            pg.draw.rect(screen, (255,0,0), (tile*3, screen_height-tile*1, tile, tile), 3)
+            pg.draw.rect(screen, (255,0,0), (tile*5, screen_height-tile*1, tile, tile), 3)
             for rect in background_tiles_editor:
                 if rect.collidepoint(pg.mouse.get_pos()):
                     if pg.mouse.get_pressed()[0] == 1:
@@ -544,6 +547,10 @@ def editor(idlevel):
                 file.seek(0) 
                 json.dump(content, file)
                 file.truncate()
+
+        if back_button.is_clicked():
+            game_status = "menu"
+            main()
 
         pg.display.flip()
 
