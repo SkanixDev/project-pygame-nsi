@@ -1,6 +1,7 @@
 import pygame as pg
 from pygame import mixer
 import json
+import os
 
 tile = 46
 size_screen = 16
@@ -18,7 +19,7 @@ selected_level = 0
 walk_cooldown = 0
 game_status = "menu"
 running = True
-sound_on = True
+sound_on = False
 
 menu_music = mixer.Sound('assets/sons/bgmusic.wav')
 death_sound = mixer.Sound('assets/sons/mort.wav')
@@ -26,8 +27,8 @@ mixer.music.set_volume(0.2)
 
 if sound_on:
     pg.mixer.Sound.play(menu_music)
-else:
-    pg.mixer.stop(menu_music)
+# else:
+#     pg.mixer.stop(menu_music)
 
 
 #  gameover state
@@ -222,7 +223,6 @@ def levelScreen():
     if level_screen_status == False:
         data = json.load(open('data.json'))
         font = pg.font.Font("assets/fonts/zephyrea.ttf", 36)
-    
 
         buttons = []
 
@@ -236,7 +236,7 @@ def levelScreen():
         start_y = 250
         x = start_x + (250 * (i % 3))
         y = start_y + (130 * (i // 3))
-        level_number = str(level['id']+1)
+        level_number = str(level['id'])
         button(level_number, x, y, 150, 50, light_yellow, yellow, action="lvlset", lvl=level_number)
         button("Retour",500, 500,150,50, gray, light_blue, action = "menu")
         button("Quitter",500, 500,150,50, gray, light_blue, action = "quit")
@@ -359,8 +359,12 @@ def main():
         elif game_status == "shop":
             shop()
             pass
-        elif game_status == "mod":
-             pass
+        elif game_status == "mod":       
+            running = False
+            pg.quit()
+            os.system('python3 mod.py')
+            print("Mod")
+            
         elif game_status == "quit":
             running = False
 
@@ -416,7 +420,6 @@ def game(level, gui, player, enemies, items):
                     selected_level = 0
                 print("Level", selected_level)
                 break
-
     # GUI
     gui.draw()
 
@@ -919,13 +922,13 @@ def shop():
                 button_buy.draw()
                 buttons_buy_shop.append(button_buy)
 
-            #text price
-            font_price = pg.font.Font(None, 25)
-            color_text = (255,255,255)
-            if item["price"] > player_inv["pieces"]:
-                color_text = (255,0,0)
-            text_price = font_price.render("Prix: "+ str(item["price"]), 1, color_text)
-            screen.blit(text_price,((space+15, pos_y + 150)))
+                #text price
+                font_price = pg.font.Font(None, 25)
+                color_text = (255,255,255)
+                if item["price"] > player_inv["pieces"]:
+                    color_text = (255,0,0)
+                text_price = font_price.render("Prix: "+ str(item["price"]), 1, color_text)
+                screen.blit(text_price,((space+15, pos_y + 150)))
 
             space += image_skin.get_width()+50
             if space > 600:

@@ -1,10 +1,9 @@
 {
-    "pieces": 18,
-    "active_skin": 3,
+    "pieces": 20,
+    "active_skin": 1,
     "inventory_skin": [
         0,
         3,
-        2,
         1
     ]
 }
