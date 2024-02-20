@@ -20,16 +20,12 @@ selected_level = 0
 walk_cooldown = 0
 game_status = "menu"
 running = True
-sound_on = False
+sound_on = True
+sound_init = False
 
 menu_music = mixer.Sound('assets/sons/bgmusic.wav')
 death_sound = mixer.Sound('assets/sons/mort.wav')
 mixer.music.set_volume(0.2)
-
-if sound_on:
-    pg.mixer.Sound.play(menu_music)
-# else:
-#     pg.mixer.stop(menu_music)
 
 
 #  gameover state
@@ -177,40 +173,79 @@ def button(text, x, y, width, height, inactiveColor , activeColor,textColor = bl
 
     text_to_button(text,textColor,x,y,width,height)
 
+sound_settings_cooldown = 0
+design_lvl_settings_cooldown = 0
 
 def settings():
+        global game_status
+        global sound_on
+        global design_lvl
+        global sound_settings_cooldown
+        global design_lvl_settings_cooldown
+        global sound_init
+
         gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
         titre = pg.image.load("assets/images/parametres_maj.png")
         screen.blit(titre, (190, 100))
-        button("Qualité",290, 500,150,50, gray, light_blue, action = "none")
-        button("Son",290, 400,150,50, gray, light_blue, action = "son")
         button_retour = ButtonImage("assets/images/retour.png", (70,500), (150,40))
         button_quit = ButtonImage("assets/images/quitter.png", (515,500), (150,50))
+
+        button_quality = Button("Qualité", (290, 400), (150,50), gray)
+        button_sound = Button("Son", (290, 300), (150,50), gray)
+
+        text_indicator_quality = Button("Haute", (200, 400), (100,50), gray)
+
+        if sound_on:
+            button_sound.set_background_color(light_green)
+        else:
+            button_sound.set_background_color(light_red)
+        
+        if design_lvl == 0:
+            text_indicator_quality.set_background_color(light_red)
+            text_indicator_quality.set_text("Basse")
+        else:
+            text_indicator_quality.set_background_color(light_green)
+            text_indicator_quality.set_text("Haute")
+        
+        text_indicator_quality.draw()
+
+
         button_retour.draw()
-        global game_status
         if button_retour.is_clicked():
             game_status = "menu"
-
-        pg.display.update()
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                game = False
-                pg.quit()
-                quit()
         
         button_quit.draw()
         if button_quit.is_clicked():
             game_status = "quit"
-
-        pg.display.update()
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                game = False
-                pg.quit()
-                quit()
         
-        pg.display.update()
+        button_quality.draw()
+        if button_quality.is_clicked():
+            if design_lvl_settings_cooldown == 0:
+                print("Design level", design_lvl, design_lvl_settings_cooldown)
+                if design_lvl == 0:
+                    design_lvl = 1
+                else:
+                    design_lvl = 0
+                design_lvl_settings_cooldown = 10
+        
+        button_sound.draw()
+        if button_sound.is_clicked():
+            if sound_settings_cooldown == 0:
+                sound_on = not sound_on
+                sound_init = False
+                sound_settings_cooldown = 10
+                print("Sound settings", sound_on, sound_settings_cooldown)
+                manage_sound()
 
+        if sound_settings_cooldown > 0:
+            sound_settings_cooldown -= 1
+        
+        if design_lvl_settings_cooldown > 0:
+            design_lvl_settings_cooldown -= 1
+
+
+
+        pg.display.update()
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 settings = False
@@ -218,6 +253,7 @@ def settings():
                 quit()
 
 current_page_levelScreen = 1
+
 def levelScreen():
     global level_screen_status
     global selected_level
@@ -265,8 +301,6 @@ def levelScreen():
 
         button_retour = ButtonImage("assets/images/retour.png", (70,500), (150,40))
         button_quit = ButtonImage("assets/images/quitter.png", (515,500), (150,50))
-
-    
 
         button_retour.draw()
         if button_retour.is_clicked():
@@ -340,6 +374,9 @@ def main():
     items = []
 
     while running: 
+
+        manage_sound()
+
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -412,7 +449,7 @@ def game(level, gui, player, enemies, items):
 
     # Input
     walk_cooldown -= delta
-    time_cooldown = 0.35
+    time_cooldown = 0.25
 
     if walk_cooldown <= 0:
         if pg.key.get_pressed()[pg.K_UP]:
@@ -816,6 +853,13 @@ class Button():
     def get_text(self):
         return self.textStr
 
+    def set_background_color(self, color):
+        self.color = color
+        pass
+
+    def set_text(self, text):
+        self.text = self.font.render(text, 1, (255,255,255))
+        pass
 
 class ButtonImage():
     def __init__(self, image, position, size) -> None:
@@ -1030,6 +1074,17 @@ def get_current_skin():
         with open('data.json', 'r') as file_open:
             file = json.load(file_open)
             return file["shop"][data["active_skin"]]["image"]
+
+def manage_sound():
+    global sound_init
+    global sound_on
+
+    if sound_init == False:
+        if sound_on:
+            pg.mixer.Sound.play(menu_music)
+        else:
+            pg.mixer.stop()
+        sound_init = True
 
 if __name__ == "__main__":
     main()

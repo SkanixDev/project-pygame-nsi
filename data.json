@@ -6,7 +6,7 @@
 			"description": "Niveau test",
 			"textures_map": 0,
 			"player_coordinates": [7, 1],
-			"locked": false,
+			"locked": true,
 			"background": [
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -310,11 +310,11 @@
 		},
 		{
 			"id": 2,
-			"name": "",
+			"name": "Troisième niveau",
 			"description": "...",
 			"textures_map": 0,
-			"player_coordinates": [1, 1],
-			"locked": true,
+			"player_coordinates": [5, 3],
+			"locked": false,
 			"background": [
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -475,7 +475,7 @@
 		},
 		{
 			"id": 3,
-			"name": "",
+			"name": "Quatrième niveau",
 			"description": "...",
 			"textures_map": 0,
 			"player_coordinates": [8, 1],
@@ -661,7 +661,7 @@
 		},
 		{
 			"id": 4,
-			"name": "",
+			"name": "Cinquième niveau",
 			"description": "...",
 			"textures_map": 0,
 			"player_coordinates": [7, 7],
@@ -894,20 +894,25 @@
 		{
 			"id": 0,
 			"nom": "Tarzan",
-			"price": 10,
+			"price": 0,
 			"image": "assets/player/perso_d2.png"
 		},
-		{ "id": 1, "nom": "Lara", "price": 2, "image": "assets/player/skin_1.png" },
+		{
+			"id": 1,
+			"nom": "Lara",
+			"price": 15,
+			"image": "assets/player/skin_1.png"
+		},
 		{
 			"id": 2,
 			"nom": "Goku",
-			"price": 50,
+			"price": 20,
 			"image": "assets/player/skin_2.png"
 		},
 		{
 			"id": 3,
 			"nom": "Ninja",
-			"price": 50,
+			"price": 30,
 			"image": "assets/player/skin_3.png"
 		},
 		{

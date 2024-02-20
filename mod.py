@@ -16,7 +16,6 @@ running = True
 game_status = "menu"
 editor_filename = None
 
-
 background_textures = ["assets/backgrounds/fond_2.png",
                 "assets/backgrounds/fond_1.png",
                 "assets/backgrounds/fond_3.png",
@@ -104,7 +103,8 @@ def select_level():
     levels_buttons = []
     for i in range(len(levels)):
         if levels[i]["locked"] == False:
-            button_level = Button("assets/mod/buttons/LEVEL.png", 20, 400 + i*50)
+            button_level = ButtonText(levels[i]["name"], tile*1, tile*7+len(levels_buttons)*tile, (0,0,0))
+            print("LEVEL", levels[i]["name"])
             levels_buttons.append({
                 "button": button_level,
                 "level": levels[i]
@@ -572,6 +572,43 @@ class Button():
 
         if self.rect.collidepoint(pos):
             if pg.mouse.get_pressed()[0] == 1 and not self.clicked:
+                self.clicked = True
+                action = True
+
+        if pg.mouse.get_pressed()[0] == 0:
+            self.clicked = False
+
+        return action
+
+    def get_width(self):
+        return self.image.get_width()
+    
+    def get_position(self):
+        return self.rect.x, self.rect.y
+
+class ButtonText():
+    def __init__(self, text, x, y, color, background = (117,184,200)) -> None:
+        self.text = font.render(text, True, color)
+        self.x = x
+        self.y = y
+        self.color = color
+        self.rect = self.text.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+        self.background = background
+
+    def draw(self):
+        pg.draw.rect(screen, self.background, (self.x, self.y, self.text.get_width(), self.text.get_height()))
+        screen.blit(self.text, (self.x, self.y))
+
+    def is_clicked(self):
+        action = False
+
+        pos = pg.mouse.get_pos()
+
+        if self.rect.collidepoint(pos):
+            if pg.mouse.get_pressed()[0] == 1 and not self.clicked:
+                print(self.rect.collidepoint(pos))
                 self.clicked = True
                 action = True
 
