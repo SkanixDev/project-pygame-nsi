@@ -33,6 +33,7 @@ gameover_status = False
 pause_status = False
 shop_status = False
 level_screen_status = False
+win_status = False
 
 ## Nicholas
         
@@ -106,7 +107,6 @@ light_blue = (105,103,115)
 smallFont = pg.font.Font("assets/fonts/zephyrea.ttf", 30)
 medFont = pg.font.Font("assets/fonts/zephyrea.ttf", 40)
 largeFont = pg.font.Font("assets/fonts/zephyrea.ttf", 55)
-
 
 
 gameDisplay = pg.display.set_mode((display_width, display_height))
@@ -437,6 +437,8 @@ def main():
             
         elif game_status == "quit":
             running = False
+        elif game_status == "win":
+            win()
 
     pg.quit()
 
@@ -482,13 +484,8 @@ def game(level, gui, player, enemies, items):
             gui.set_coins(player.get_coins())
             print("Coin", player.get_coins(), gui.get_coins())
             if len(items) == 0:
-                game_status = "loadlevel"
+                game_status = "win"
                 print("Level terminé")
-                selected_level += 1
-                print("Level", selected_level)
-                if selected_level >= 2:
-                    selected_level = 0
-                print("Level", selected_level)
                 break
     # GUI
     gui.draw()
@@ -574,6 +571,53 @@ def pause():
             pause_status = False
             print("Menu")
     pass
+
+
+def win():
+    global running
+    global win_status
+    global game_status
+    global button_rejouer
+    global button_menu
+    global button_nextlevel
+    global selected_level
+    
+    if not win_status:
+        fond = pg.Surface((screen_width,screen_height))
+        fond.fill((0,0,0))
+        fond.set_alpha(128)
+
+        image_win = pg.image.load('assets/images/YOU-WIN.png')
+        position_x = ((tile*size_screen)/2)-(image_win.get_width()/2)
+        position_y = ((tile*size_screen)/2)-(image_win.get_height()/2)
+        screen.blit (fond,(0,0))    
+        screen.blit(image_win, (position_x, position_y-50))
+        win_status = True
+
+        button_rejouer = Button("Rejouer", (position_x-100, position_y+100),(120,70), (255,66,66))
+        button_rejouer.draw()
+
+        button_menu = Button("Menu", ((position_x+image_win.get_width()/2)-60, position_y+100),(120,70), (64,213,66))
+        button_menu.draw()
+
+        button_nextlevel = Button("Next level", (position_x+250, position_y+100),(120,70), (255,66,66))
+        button_nextlevel.draw()
+
+        pg.display.flip()
+    else:
+        if button_rejouer.is_clicked():
+            win_status = False
+            game_status = "loadlevel"
+            print("Rejouer")
+        if button_menu.is_clicked():
+            win_status = False
+            game_status = "menu"
+            print("Menu")
+        if button_nextlevel.is_clicked():
+            win_status = False
+            selected_level = int(selected_level) + 1
+            game_status = "loadlevel"
+            print("Niveau Suivant")
 
 
 class Level():
@@ -991,7 +1035,10 @@ def shop():
 
             #button buy item
             if item["id"] in player_inv["inventory_skin"]:
-                button_buy = Button("Equiper", (space, pos_y + 100), (92, 50), (50,255,50))
+                button_text = "Equiper"
+                if player_inv["active_skin"] == item["id"]:
+                    button_text = "Equipé"
+                button_buy = Button(button_text, (space, pos_y + 100), (92, 50), (50,255,50))
                 button_buy.draw()
                 buttons_buy_shop.append(button_buy)
             else:
@@ -1026,6 +1073,10 @@ def shop():
                             shop_status = False
             elif button_buy.is_clicked() and button_buy.get_text() == "Equiper":
                 change_skin_ative(buttons_buy_shop.index(button_buy))
+                shop_status = False
+            elif button_buy.is_clicked() and button_buy.get_text() == "Equipé":
+                change_skin_ative(buttons_buy_shop.index(button_buy))
+                shop_status = False
         if button_buy_shop_retour.is_clicked():
             game_status = "menu"
             shop_status = False
@@ -1084,7 +1135,7 @@ def manage_sound():
             pg.mixer.Sound.play(menu_music)
         else:
             pg.mixer.stop()
-        sound_init = True
+        sound_init = True   
 
 if __name__ == "__main__":
     main()
