@@ -1,5 +1,6 @@
 import pygame as pg
 import json
+import os
 
 # Variables
 tile = 46
@@ -57,6 +58,10 @@ def main():
     create_level_button.draw()
     select_level_button = Button("assets/mod/buttons/liste-des-niveaux.png", screen_width/2 - 110, 500)
     select_level_button.draw()
+    game_button = Button("assets/mod/buttons/RETOUR-AU-JEU.png", screen_width/2 - 110, 600)
+    game_button.draw()
+    leave_button = Button("assets/mod/buttons/QUITTER.png", screen_width/2 - 110, 700)
+    leave_button.draw()
 
     while running:
         for event in pg.event.get():
@@ -67,6 +72,15 @@ def main():
             game_status = "create_level"
         elif select_level_button.is_clicked():
             game_status = "select_level"
+        elif game_button.is_clicked():
+            running = False
+            pg.quit()
+            os.system('python3 index.py')
+            break
+        elif leave_button.is_clicked():
+            running = False
+            pg.quit()
+            break
 
         if game_status == "editor":
             editor(0)

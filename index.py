@@ -470,8 +470,6 @@ def game(level, gui, player, enemies, items):
         
      # Update
     level.render()
-    for enemy in enemies:
-        enemy.update(player.get_position())
     player.update()
     for item in items:
         if item.get_state():
@@ -487,6 +485,8 @@ def game(level, gui, player, enemies, items):
                 game_status = "win"
                 print("Level terminé")
                 break
+    for enemy in enemies:
+        enemy.update(player.get_position())
     # GUI
     gui.draw()
 
@@ -594,7 +594,7 @@ def win():
         screen.blit(image_win, (position_x, position_y-50))
         win_status = True
 
-        button_rejouer = Button("Rejouer", (position_x-100, position_y+100),(120,70), (255,66,66))
+        button_rejouer = Button("Rejouer", (position_x-50, position_y+100),(120,70), (255,66,66))
         button_rejouer.draw()
 
         button_menu = Button("Menu", ((position_x+image_win.get_width()/2)-60, position_y+100),(120,70), (64,213,66))
@@ -615,9 +615,15 @@ def win():
             print("Menu")
         if button_nextlevel.is_clicked():
             win_status = False
-            selected_level = int(selected_level) + 1
-            game_status = "loadlevel"
-            print("Niveau Suivant")
+            with open('data.json', 'r') as file_open:
+                file = json.load(file_open)
+                if int(selected_level)+1 < len(file["levels"]):
+                    selected_level = int(selected_level) + 1
+                    game_status = "loadlevel"
+                    print("Niveau Suivant")
+                else:
+                    game_status = "menu"
+                    print("Fin du jeu")
 
 
 class Level():
@@ -724,6 +730,7 @@ class Player(Entity):
         pass
 
     def draw(self):
+        # Nous l'avons supprimé car n'avons pas réussi à bien optimisé le déplacement pour ajouter des animations
         # if self.cooldown_skin <= 0:
         #     if self.frame_skin < len(self.skin)-1:
         #         self.frame_skin += 1
@@ -733,7 +740,7 @@ class Player(Entity):
         # else:
         #     self.cooldown_skin -= 0.1
         # if self.state == "idle":
-            # self.frame_skin = 0
+        # self.frame_skin = 0
         rotated_img = ""
         if self.direction == "south":
             rotated_img = pg.transform.rotate(pg.image.load(self.skin[self.frame_skin]), 0)
