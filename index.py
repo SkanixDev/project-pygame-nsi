@@ -36,25 +36,25 @@ level_screen_status = False
 win_status = False
 
 ## Nicholas
-        
 
-def startScreen():
+
+def startScreen():                # écran du début quand on ouvre le jeu
         global pause_status
         global game_status
 
-        button_lvl_startScreen = ButtonImage("assets/images/niveaux.png", (290,320), (180,60))
+        button_lvl_startScreen = ButtonImage("assets/images/niveaux.png", (290,320), (180,60))     # creations des bouttons du meuu (les images et les co)
         button_regles_startScreen = ButtonImage("assets/images/regles.png", (90,330), (180,60))
         button_quit_startScreen = ButtonImage("assets/images/quitter.png", (490,410), (180,70))
         button_sett_startScreen = ButtonImage("assets/images/parametres.png", (290,410), (180,70))
         button_shop_startScreen = ButtonImage("assets/images/shop_menu.png", (490,330), (180,60))
         button_mod_startScreen = ButtonImage("assets/images/mod.png", (90,400), (180,70))
         
-        gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))
-        titre = pg.image.load("assets/images/titre.png")
-        screen.blit(titre, (170, 200))
+        gameDisplay.blit(pg.image.load('assets/backgrounds/fond_menu.png'),(0,0))      # le fond qui est dans le style du jeu
+        titre = pg.image.load("assets/images/titre.png")                               # creation du titre du jeu sous forme d'image
+        screen.blit(titre, (170, 200))                                                 # apparition le titre qui vient d'etre cree
        
         # Draw buttons
-        button_regles_startScreen.draw()
+        button_regles_startScreen.draw()          # apparition des bouttons
         button_quit_startScreen.draw()
         button_sett_startScreen.draw()
         button_shop_startScreen.draw()
@@ -62,7 +62,7 @@ def startScreen():
         button_lvl_startScreen.draw()
 
 
-        if button_lvl_startScreen.is_clicked():
+        if button_lvl_startScreen.is_clicked():          # lorsque l'on clique sur un boutton ca va changer le game status donc la page
             game_status = "lvl"
 
         if button_regles_startScreen.is_clicked():
@@ -80,7 +80,7 @@ def startScreen():
         if button_mod_startScreen.is_clicked():
             game_status = "mod"
 
-        pg.display.update()
+        pg.display.update()                             # sans cela on ne peut pas quitter le jeu
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 game = False
@@ -88,10 +88,10 @@ def startScreen():
                 quit()
 
         
-display_width = 46*16
+display_width = 46*16     # dimensions/taille de l'ecran
 display_height = 46*16
 
-white = (253,255,252)
+white = (253,255,252)          # differentes couleures 
 brown = (248,126,98)
 black = (9,8,9)
 gray = (114,119,108)
@@ -104,17 +104,17 @@ light_red = (230,0,0)
 light_yellow = (117,184,200)
 light_blue = (105,103,115)
 
-smallFont = pg.font.Font("assets/fonts/zephyrea.ttf", 30)
+smallFont = pg.font.Font("assets/fonts/zephyrea.ttf", 30)         # tailles de police
 medFont = pg.font.Font("assets/fonts/zephyrea.ttf", 40)
 largeFont = pg.font.Font("assets/fonts/zephyrea.ttf", 55)
 
 
-gameDisplay = pg.display.set_mode((display_width, display_height))
+gameDisplay = pg.display.set_mode((display_width, display_height))     # dimensions/taille de l'ecran
 
 pg.display.set_caption("Gem Raider")
 
 
-def text_objects(text, color, size):
+def text_objects(text, color, size):        # comment associer un texte à sa taille de police
     if size == "small":
         textSurf = smallFont.render(text, True, color)
     elif size == "medium":
